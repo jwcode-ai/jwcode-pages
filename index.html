@@ -1,277 +1,294 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JWCode — Ship Java faster with an AI that reads your repo</title>
-<meta name="description" content="JWCode is the AI coding engine for Java engineers. One engine, terminal + browser, every model, your machine. Plan → Approve → Ship.">
-<meta name="theme-color"="#05060a">
+<title>JWCode — Java-Native AI Coding Agent</title>
+<meta name="description" content="JWCode is an open-source Java AI coding engine. Self-hosted, multi-LLM, dual interface — terminal TUI and Web UI.">
+<meta name="theme-color" content="#fcfaf8">
+<link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/jwcode-project/jwcode/main/jwcode-web/public/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Noto+Serif+SC:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg-0:#05060a;--bg-1:#0a0c14;--bg-2:#0f1320;--bg-3:#161b2e;
-  --line:rgba(255,255,255,.06);--line-strong:rgba(255,255,255,.12);
-  --text-0:#f5f7fb;--text-1:#cdd2dd;--text-2:#8a92a6;--text-3:#5b6275;
-  --accent:#7c5cff;--accent-2:#22d3ee;--accent-3:#a78bfa;--accent-warm:#ff8a4c;
-  --green:#34d399;
-  --grad-1:linear-gradient(135deg,#7c5cff 0%,#22d3ee 100%);
-  --grad-2:linear-gradient(135deg,#ff8a4c 0%,#ff5ea8 50%,#7c5cff 100%);
-  --grad-3:linear-gradient(180deg,rgba(124,92,255,.18) 0%,rgba(34,211,238,0) 60%);
-  --shadow-1:0 1px 0 rgba(255,255,255,.04) inset,0 20px 60px -20px rgba(124,92,255,.35);
-  --radius:14px;--radius-lg:22px;--radius-xl:28px;
-  --maxw:1240px;
+  --color-bg:#fcfaf8;
+  --color-bg-warm:#f8f5f0;
+  --color-ink:#26251e;
+  --color-ink-soft:#504f49;
+  --color-ink-muted:#8a857a;
+  --color-border:#d4d0c8;
+  --color-border-light:#e8e5e0;
+  --color-chip-bg:#f3f0ef;
+  --color-card-bg:#ffffff;
+  --color-accent:#7c5cff;
+  --color-accent-soft:#a78bfa;
+  --color-blue:#58a6ff;
+  --color-purple:#a855f7;
+  --color-green:#34d399;
+  --color-warm:#ff8a4c;
+  --font-sans:"Inter","PingFang SC",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+  --font-display:"Questrial","Century Gothic","Avenir Next","Inter",sans-serif;
+  --font-mincho:"Noto Serif SC","Songti SC","STSong",Georgia,serif;
+  --font-mono:"JetBrains Mono",ui-monospace,monospace;
+  --radius:14px;
+  --radius-lg:22px;
+  --radius-xl:28px;
+  --maxw:1100px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
-  font-family:'Inter',system-ui,-apple-system,sans-serif;
-  background:var(--bg-0);color:var(--text-1);
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  line-height:1.55;overflow-x:hidden;
-  font-feature-settings:"ss01","cv11";
+  font-family:var(--font-sans);
+  background:var(--color-bg);
+  color:var(--color-ink);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.6;
+  overflow-x:hidden;
 }
-body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(60rem 40rem at 80% -10%,rgba(124,92,255,.18),transparent 60%),
-             radial-gradient(50rem 30rem at -10% 10%,rgba(34,211,238,.10),transparent 60%),
-             radial-gradient(40rem 30rem at 50% 110%,rgba(255,138,76,.10),transparent 60%)}
-body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(to right,rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.02) 1px,transparent 1px);
-  background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000 30%,transparent 80%)}
-::selection{background:rgba(124,92,255,.35);color:#fff}
-h1,h2,h3,h4{color:var(--text-0);font-weight:700;letter-spacing:-0.02em;margin:0;line-height:1.15}
+::selection{background:rgba(124,92,255,.2);color:var(--color-ink)}
+h1,h2,h3,h4{color:var(--color-ink);font-weight:600;margin:0;line-height:1.2}
 p{margin:0}
 a{color:inherit;text-decoration:none}
-.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+img{display:block;max-width:100%}
+code{font-family:var(--font-mono);font-size:.9em;background:rgba(0,0,0,.04);padding:2px 6px;border-radius:4px}
+.mono{font-family:var(--font-mono)}
 
-/* Display headline weight: 700; body: 400/500; mono terminal */
-.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-2);font-weight:500}
-.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 12px var(--accent-2)}
-.grad-text{background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent}
-.grad-text-2{background:var(--grad-2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.container{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 32px}
+@media(max-width:640px){.container{padding:0 20px}}
 
-.container{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
-
-.btn{display:inline-flex;align-items:center;gap:.55rem;padding:.85rem 1.25rem;border-radius:12px;font-size:.9rem;font-weight:500;border:1px solid transparent;cursor:pointer;transition:transform .2s,background .2s,border-color .2s,box-shadow .2s;font-family:inherit;white-space:nowrap}
-.btn-primary{color:#0a0c14;background:linear-gradient(180deg,#fff 0%,#d8d5ff 100%);box-shadow:0 10px 30px -8px rgba(124,92,255,.5),0 1px 0 rgba(255,255,255,.4) inset}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 16px 40px -8px rgba(124,92,255,.7),0 1px 0 rgba(255,255,255,.4) inset}
-.btn-ghost{color:var(--text-0);background:rgba(255,255,255,.03);border-color:var(--line-strong);backdrop-filter:blur(8px)}
-.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.2)}
-.btn-grad{color:#fff;background:var(--grad-1);box-shadow:0 10px 30px -8px rgba(124,92,255,.5)}
-.btn-grad:hover{transform:translateY(-1px);box-shadow:0 16px 40px -8px rgba(124,92,255,.7)}
-
-/* Nav */
-.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);background:rgba(5,6,10,.6);border-bottom:1px solid var(--line)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
-.brand{display:flex;align-items:center;gap:.6rem;color:var(--text-0);font-size:1.05rem;font-weight:700;letter-spacing:-0.01em}
-.brand-mark{width:30px;height:30px;border-radius:9px;background:var(--grad-1);display:grid;place-items:center;box-shadow:0 8px 24px -8px rgba(124,92,255,.6);position:relative;overflow:hidden}
-.brand-mark::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.4),transparent 50%)}
-.nav-links{display:flex;align-items:center;gap:6px}
-.nav-link{padding:.5rem .9rem;font-size:.88rem;color:var(--text-2);border-radius:8px;transition:color .2s,background .2s}
-.nav-link:hover{color:var(--text-0);background:rgba(255,255,255,.04)}
+/* ── Nav ── */
+.nav{position:sticky;top:0;z-index:50;background:rgba(252,250,248,.85);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid var(--color-border-light)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0;max-width:var(--maxw);margin:0 auto;padding-left:32px;padding-right:32px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--color-ink);font-size:1.05rem;font-weight:700;letter-spacing:-0.01em}
+.brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--color-blue),var(--color-purple));display:grid;place-items:center;box-shadow:0 4px 12px -4px rgba(88,166,255,.4);position:relative;overflow:hidden;flex-shrink:0}
+.brand-mark::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.5),transparent 50%)}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{position:relative;padding:.5rem .85rem;font-size:.88rem;color:var(--color-ink-soft);border-radius:8px;transition:color .2s,background .2s}
+.nav-link:hover{color:var(--color-ink);background:rgba(0,0,0,.04)}
+.nav-link::after{content:"";position:absolute;left:8px;right:8px;bottom:2px;height:2px;background:var(--color-accent);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+.nav-link:hover::after{transform:scaleX(1)}
 .nav-cta{display:flex;align-items:center;gap:10px}
-.lang-switch{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:3px}
-.lang-btn{font-size:.72rem;padding:.3rem .65rem;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text-2);font-family:inherit;font-weight:500;transition:color .2s,background .2s}
-.lang-btn.active{background:rgba(255,255,255,.06);color:var(--text-0)}
-.nav-contact{font-size:.85rem;color:var(--accent-3);font-weight:500;padding:.4rem .8rem;border:1px solid rgba(124,92,255,.25);border-radius:8px;transition:background .2s,border-color .2s;white-space:nowrap;margin-right:4px}
-.nav-contact:hover{background:rgba(124,92,255,.1);border-color:var(--accent-3)}
+.lang-switch{display:flex;background:rgba(0,0,0,.03);border:1px solid var(--color-border-light);border-radius:10px;padding:3px}
+.lang-btn{font-size:.72rem;padding:.3rem .65rem;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--color-ink-muted);font-family:inherit;font-weight:500;transition:color .2s,background .2s}
+.lang-btn.active{background:var(--color-card-bg);color:var(--color-ink);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.lang-btn:not(.active):hover{color:var(--color-ink);background:rgba(0,0,0,.04)}
 @media(max-width:880px){.nav-links{display:none}}
 
-/* Hero */
-.hero{position:relative;padding:72px 0 56px}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
-@media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:48px}}
-.hero h1{font-size:clamp(2.4rem,4.6vw,3.8rem);line-height:1.06;margin:22px 0 22px;font-weight:700;letter-spacing:-0.025em}
-.hero h1 .accent{font-style:italic;font-weight:700}
-.hero-sub{font-size:1.08rem;color:var(--text-2);max-width:560px;line-height:1.6}
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:42px;padding:0 28px;border-radius:46px;
+  font-family:var(--font-sans);font-size:15px;font-weight:500;letter-spacing:.02em;
+  cursor:pointer;white-space:nowrap;border:1px solid var(--color-border);
+  background:transparent;color:var(--color-ink);
+  transition:transform .2s,background .2s,color .2s,border-color .2s,box-shadow .2s;
+  text-decoration:none;
+}
+.btn:hover{background:var(--color-ink);color:#fafafa;border-color:var(--color-ink);transform:translateY(-1px)}
+.btn--primary{background:var(--color-ink);color:#fafafa;border-color:var(--color-ink);box-shadow:0 6px 20px -8px rgba(38,37,30,.25)}
+.btn--primary:hover{background:#3a3933;border-color:#3a3933;box-shadow:0 10px 28px -8px rgba(38,37,30,.35);color:#fafafa}
+.btn--ghost{background:rgba(255,255,255,.5);border-color:var(--color-border);backdrop-filter:blur(4px)}
+.btn--ghost:hover{background:rgba(255,255,255,.8);border-color:var(--color-ink);color:var(--color-ink)}
+.btn--accent{background:var(--color-accent);color:#fff;border-color:var(--color-accent);box-shadow:0 6px 20px -8px rgba(124,92,255,.4)}
+.btn--accent:hover{background:#6a4ae8;border-color:#6a4ae8;box-shadow:0 10px 28px -8px rgba(124,92,255,.5);color:#fff}
+.btn--sm{height:36px;padding:0 18px;font-size:13px}
+.btn .arrow{width:16px;height:16px;flex-shrink:0;opacity:0;margin-left:-16px;transition:opacity .2s,margin-left .2s}
+.btn:hover .arrow{opacity:1;margin-left:4px}
+
+/* ── Eyebrow ── */
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--color-ink-muted);font-weight:500}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--color-accent);box-shadow:0 0 12px var(--color-accent)}
+
+/* ── Hero ── */
+.hero{position:relative;padding:80px 0 60px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(50rem 30rem at 40% -20%,rgba(124,92,255,.06),transparent 60%),
+             radial-gradient(40rem 30rem at 80% 80%,rgba(255,138,76,.05),transparent 60%),
+             radial-gradient(30rem 20rem at 20% 90%,rgba(88,166,255,.04),transparent 50%)}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero h1{font-size:clamp(2rem,3.8vw,3rem);line-height:1.08;font-weight:700;letter-spacing:-0.025em;margin:20px 0 18px}
+.hero h1 .grad-text{background:linear-gradient(135deg,var(--color-blue),var(--color-accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{font-size:1.05rem;color:var(--color-ink-soft);line-height:1.65;max-width:500px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--color-chip-bg);border:1px solid var(--color-border-light);border-radius:100px;font-size:.78rem;color:var(--color-ink-soft);font-weight:500}
+.hero-badge svg{color:var(--color-green);flex-shrink:0}
 .hero-ctas{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
-.hero-trust{margin-top:28px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;color:var(--text-3);font-size:.82rem}
-.hero-trust .pill{padding:6px 12px;border:1px solid var(--line-strong);border-radius:100px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.02)}
-.hero-trust .pill svg{color:var(--green)}
 
 /* Terminal card */
-.terminal-card{position:relative;background:linear-gradient(180deg,rgba(15,19,32,.9),rgba(10,12,20,.9));border:1px solid var(--line-strong);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-1),0 0 0 1px rgba(255,255,255,.02)}
-.terminal-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(124,92,255,.4),transparent 40%,rgba(34,211,238,.3));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:1px}
-.terminal-bar{display:flex;align-items:center;gap:6px;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
-.terminal-bar .dot{width:11px;height:11px;border-radius:50%}
+.terminal-card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(243,240,239,.9));border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 20px 60px -20px rgba(38,37,30,.15),0 1px 0 rgba(255,255,255,.6) inset}
+.terminal-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(124,92,255,.3),transparent 40%,rgba(88,166,255,.2));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:1px}
+.terminal-bar{display:flex;align-items:center;gap:6px;padding:14px 18px;border-bottom:1px solid var(--color-border-light);background:rgba(255,255,255,.5)}
+.terminal-bar .dot{width:10px;height:10px;border-radius:50%}
 .terminal-bar .d1{background:#ff5f57}.terminal-bar .d2{background:#febc2e}.terminal-bar .d3{background:#28c840}
-.terminal-bar .title{margin-left:auto;margin-right:auto;font-size:.75rem;color:var(--text-3);font-family:'JetBrains Mono',monospace}
-.terminal-body{padding:22px 24px;font-family:'JetBrains Mono',monospace;font-size:.84rem;line-height:1.75;color:var(--text-1);min-height:340px}
-.term-line{display:flex;gap:.6rem;align-items:flex-start}
-.term-prompt{color:var(--accent-3);user-select:none}
-.term-cmd{color:var(--text-0)}
-.term-out{color:var(--text-2);padding-left:1.2rem}
-.term-tag{display:inline-block;padding:1px 7px;border-radius:4px;margin-right:.4rem;font-size:.72rem;font-weight:600}
-.tag-plan{background:rgba(124,92,255,.18);color:#c0aaff}
-.tag-tool{background:rgba(34,211,238,.16);color:#7be6f3}
-.tag-out{background:rgba(52,211,153,.16);color:#5fe5a8}
-.term-cursor{display:inline-block;width:7px;height:14px;background:var(--accent);margin-left:2px;animation:blink 1.1s steps(1) infinite;vertical-align:-2px}
+.terminal-bar .title{margin-left:auto;font-size:.72rem;color:var(--color-ink-muted);font-family:var(--font-mono)}
+.terminal-body{padding:20px 22px;font-family:var(--font-mono);font-size:.82rem;line-height:1.7;color:var(--color-ink-soft);min-height:300px}
+.term-line{display:flex;gap:.5rem;align-items:flex-start}
+.term-prompt{color:var(--color-accent-soft);user-select:none}
+.term-cmd{color:var(--color-ink)}
+.term-out{color:var(--color-ink-muted);padding-left:.5rem}
+.term-tag{display:inline-block;padding:1px 7px;border-radius:4px;margin-right:.3rem;font-size:.7rem;font-weight:600}
+.tag-plan{background:rgba(124,92,255,.12);color:var(--color-accent)}
+.tag-tool{background:rgba(88,166,255,.12);color:#3b82f6}
+.tag-out{background:rgba(52,211,153,.14);color:#10b981}
+.term-cursor{display:inline-block;width:7px;height:14px;background:var(--color-accent);margin-left:2px;animation:blink 1.1s steps(1) infinite;vertical-align:-2px}
 @keyframes blink{50%{opacity:0}}
-.typing-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text-3);margin:0 1px;animation:dot 1.4s infinite}
+.typing-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--color-ink-muted);margin:0 1px;animation:dot 1.4s infinite}
 .typing-dots span:nth-child(2){animation-delay:.2s}.typing-dots span:nth-child(3){animation-delay:.4s}
 @keyframes dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
 
-/* Social proof strip */
-.proof{padding:36px 0 8px;border-bottom:1px solid var(--line)}
-.proof-label{text-align:center;color:var(--text-3);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
-.proof-row{display:flex;flex-wrap:wrap;justify-content:center;gap:36px 56px;align-items:center;opacity:.7}
-.proof-row .logo-word{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:600;color:var(--text-1);letter-spacing:-0.01em;display:inline-flex;align-items:center;gap:8px}
-.proof-row .logo-word .ic{width:8px;height:8px;border-radius:2px;background:var(--accent-3)}
-.proof-stat{margin-top:24px;display:flex;flex-wrap:wrap;justify-content:center;gap:32px 56px;color:var(--text-2);font-size:.85rem}
-.proof-stat strong{color:var(--text-0);font-weight:600;margin-right:6px}
-@media(max-width:680px){.proof-row{gap:18px 28px}}
+/* ── Sections ── */
+section{padding:80px 0;position:relative}
+.section-head{max-width:700px;margin:0 auto 48px;text-align:center}
+.section-head h2{font-size:clamp(1.6rem,2.8vw,2.2rem);line-height:1.15;margin:16px 0 14px;letter-spacing:-0.02em}
+.section-head h2 .chinese{font-family:var(--font-mincho);font-weight:500;color:var(--color-ink-soft);margin-left:8px}
+.section-head p{color:var(--color-ink-soft);font-size:1rem;line-height:1.65}
+.section-head .highlight{color:var(--color-accent);font-weight:600}
 
-/* Sections */
-section{padding:96px 0;position:relative}
-.section-head{max-width:760px;margin:0 auto 56px;text-align:center}
-.section-head h2{font-size:clamp(1.85rem,3.2vw,2.6rem);line-height:1.15;margin:18px 0 16px;letter-spacing:-0.02em}
-.section-head p{color:var(--text-2);font-size:1.02rem;line-height:1.65}
+/* ── Stats ── */
+.stats-row{display:flex;flex-wrap:wrap;justify-content:center;gap:40px 64px;padding:16px 0 8px}
+.stat-item{text-align:center}
+.stat-item .num{font-size:2rem;font-weight:700;color:var(--color-ink);line-height:1;letter-spacing:-0.02em;font-family:var(--font-display)}
+.stat-item .num .unit{font-size:1rem;color:var(--color-ink-muted)}
+.stat-item .label{font-size:.82rem;color:var(--color-ink-muted);margin-top:6px}
+@media(max-width:600px){.stats-row{gap:24px 32px}.stat-item .num{font-size:1.6rem}}
 
-/* Use Cases first (value-led) */
+/* ── Social Proof ── */
+.proof{padding:40px 0 16px}
+.proof-label{text-align:center;color:var(--color-ink-muted);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px;font-weight:500}
+.proof-row{display:flex;flex-wrap:wrap;justify-content:center;gap:28px 48px;align-items:center}
+.proof-item{display:inline-flex;align-items:center;gap:8px;font-size:.95rem;font-weight:500;color:var(--color-ink-soft)}
+.proof-item .ic{width:8px;height:8px;border-radius:2px;background:var(--color-accent-soft);flex-shrink:0}
+
+/* ── Use Cases ── */
 .uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-@media(max-width:880px){.uc-grid{grid-template-columns:1fr}}
-.uc-card{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;transition:background .2s,border-color .2s,transform .2s,box-shadow .2s;position:relative;overflow:hidden}
-.uc-card::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,rgba(124,92,255,.12),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
-.uc-card:hover{background:rgba(255,255,255,.04);border-color:var(--line-strong);transform:translateY(-2px);box-shadow:0 18px 40px -20px rgba(124,92,255,.4)}
+@media(max-width:880px){.uc-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto}}
+.uc-card{background:var(--color-card-bg);border:1px solid var(--color-border-light);border-radius:var(--radius);padding:26px 24px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
+.uc-card::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,92,255,.06),transparent 50%);opacity:0;transition:opacity .3s;pointer-events:none}
+.uc-card:hover{transform:translateY(-3px);border-color:var(--color-border);box-shadow:0 12px 32px -12px rgba(0,0,0,.08)}
 .uc-card:hover::after{opacity:1}
-.uc-card .tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:rgba(124,92,255,.14);color:var(--accent-3);margin-bottom:14px}
-.uc-card h3{font-size:1.08rem;margin-bottom:8px;font-weight:600;line-height:1.3;position:relative;z-index:1}
-.uc-card p{color:var(--text-2);font-size:.9rem;line-height:1.6;position:relative;z-index:1}
-.uc-card .arrow{position:absolute;bottom:18px;right:20px;color:var(--text-3);transition:color .2s,transform .2s}
-.uc-card:hover .arrow{color:var(--accent-3);transform:translateX(2px)}
+.uc-card .tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;background:rgba(124,92,255,.1);color:var(--color-accent);margin-bottom:14px}
+.uc-card h3{font-size:1rem;font-weight:600;margin-bottom:6px;line-height:1.3}
+.uc-card p{color:var(--color-ink-soft);font-size:.88rem;line-height:1.55}
 
-/* About (positioning) */
-.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-@media(max-width:980px){.intro-grid{grid-template-columns:1fr;gap:48px}}
-.intro-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:36px}
-@media(max-width:680px){.intro-stat-row{grid-template-columns:repeat(2,1fr)}}
-.stat-pill{background:linear-gradient(180deg,rgba(124,92,255,.08),rgba(34,211,238,.04));border:1px solid var(--line-strong);border-radius:var(--radius);padding:18px 18px}
-.stat-pill .num{font-size:1.7rem;color:var(--text-0);line-height:1;font-weight:700;letter-spacing:-0.02em}
-.stat-pill .num .plus{color:var(--accent-3)}
-.stat-pill .label{color:var(--text-2);font-size:.78rem;margin-top:8px;line-height:1.4}
-.intro-visual{position:relative;background:linear-gradient(180deg,rgba(15,19,32,.7),rgba(10,12,20,.7));border:1px solid var(--line-strong);border-radius:var(--radius-xl);padding:32px;overflow:hidden}
-.intro-visual::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(124,92,255,.25),transparent 50%)}
-.arch-diagram{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.arch-node{background:rgba(5,6,10,.6);border:1px solid var(--line-strong);border-radius:12px;padding:16px 14px;backdrop-filter:blur(8px)}
-.arch-node .ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;margin-bottom:12px;background:rgba(124,92,255,.15);color:var(--accent-3)}
-.arch-node h4{font-size:.85rem;margin-bottom:4px;font-weight:600}
-.arch-node p{font-size:.72rem;color:var(--text-2);line-height:1.4}
-.arch-flow{position:relative;z-index:1;margin-top:20px;padding:16px;background:rgba(5,6,10,.4);border:1px dashed var(--line-strong);border-radius:12px;display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-2);flex-wrap:wrap;gap:6px}
-.arch-flow .arrow{color:var(--accent-3)}
+/* ── Install ── */
+.install-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+@media(max-width:880px){.install-grid{grid-template-columns:1fr;gap:36px}}
+.code-card{background:var(--color-card-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.04)}
+.code-card-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--color-border-light);background:var(--color-chip-bg)}
+.code-card-header .label{font-size:.82rem;font-weight:600;color:var(--color-ink)}
+.code-card-body{padding:20px;font-family:var(--font-mono);font-size:.85rem;line-height:1.65;color:var(--color-ink-soft)}
+.code-card-body .prompt{color:var(--color-accent-soft);margin-right:.4rem}
+.code-card-body .comment{color:var(--color-ink-muted)}
+.install-options{display:flex;flex-direction:column;gap:10px}
+.install-opt{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:14px;background:var(--color-card-bg);border:1px solid var(--color-border-light);transition:background .2s,border-color .2s}
+.install-opt:hover{background:var(--color-chip-bg);border-color:var(--color-border)}
+.install-opt .ic{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;background:rgba(124,92,255,.1);color:var(--color-accent)}
+.install-opt h4{font-size:.88rem;font-weight:600;margin-bottom:2px}
+.install-opt p{font-size:.8rem;color:var(--color-ink-soft);line-height:1.5}
 
-/* Two interfaces */
-.tabs{display:inline-flex;background:rgba(255,255,255,.03);border:1px solid var(--line-strong);border-radius:14px;padding:5px}
-.tab{padding:.65rem 1.2rem;font-size:.85rem;font-weight:500;border:none;background:transparent;color:var(--text-2);cursor:pointer;border-radius:9px;transition:all .2s;font-family:inherit}
-.tab.active{background:var(--grad-1);color:#0a0c14;box-shadow:0 6px 20px -8px rgba(124,92,255,.6)}
-.tab:not(.active):hover{color:var(--text-0);background:rgba(255,255,255,.04)}
-.products-tabs-wrap{display:flex;justify-content:center;margin-bottom:48px}
-.product-panel{display:none}
-.product-panel.active{display:grid}
-.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-@media(max-width:980px){.product-grid{grid-template-columns:1fr;gap:32px}}
-.product-features{display:flex;flex-direction:column;gap:14px}
-.pf-item{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid var(--line);transition:background .2s,border-color .2s,transform .2s}
-.pf-item:hover{background:rgba(255,255,255,.04);border-color:var(--line-strong);transform:translateX(4px)}
-.pf-item .ic{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;background:rgba(124,92,255,.14);color:var(--accent-3)}
-.pf-item h4{font-size:.95rem;font-weight:600;margin-bottom:4px}
-.pf-item p{font-size:.85rem;color:var(--text-2);line-height:1.55}
-.product-mock{position:relative;background:linear-gradient(180deg,rgba(15,19,32,.7),rgba(10,12,20,.7));border:1px solid var(--line-strong);border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:4/3}
-.product-mock::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(34,211,238,.2),transparent 50%)}
-.mock-bar{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
-.mock-bar .dot{width:9px;height:9px;border-radius:50%;background:var(--text-3)}
-.mock-bar .url{margin-left:14px;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--text-3)}
-.mock-body{padding:18px;display:grid;gap:10px}
-.mock-tile{background:rgba(5,6,10,.5);border:1px solid var(--line);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-2)}
-.mock-tile .row{display:flex;justify-content:space-between;margin-top:6px;color:var(--text-3);font-size:.68rem}
-.mock-tile .row span:first-child{color:var(--text-1)}
-.mock-tile .accent{color:var(--accent-3)}
-.mock-tile .green{color:var(--green)}
-.mock-tile .cyan{color:var(--accent-2)}
+/* ── Architecture ── */
+.arch-section{background:var(--color-bg-warm);border-top:1px solid var(--color-border-light);border-bottom:1px solid var(--color-border-light)}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+@media(max-width:880px){.arch-grid{grid-template-columns:1fr;gap:36px}}
+.arch-left p{color:var(--color-ink-soft);font-size:.95rem;line-height:1.65;margin-bottom:14px}
+.arch-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px}
+.arch-stat{background:var(--color-card-bg);border:1px solid var(--color-border-light);border-radius:var(--radius);padding:18px 16px;text-align:center}
+.arch-stat .num{font-size:1.5rem;font-weight:700;color:var(--color-ink);line-height:1;font-family:var(--font-display)}
+.arch-stat .num .plus{color:var(--color-accent)}
+.arch-stat .label{font-size:.78rem;color:var(--color-ink-muted);margin-top:6px;line-height:1.3}
+.arch-visual{background:var(--color-card-bg);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:28px;position:relative;overflow:hidden;box-shadow:0 8px 24px -12px rgba(0,0,0,.06)}
+.arch-visual::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 0%,rgba(124,92,255,.08),transparent 50%)}
+.arch-diagram{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.arch-node{background:var(--color-bg);border:1px solid var(--color-border-light);border-radius:12px;padding:14px 12px}
+.arch-node .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;margin-bottom:10px;background:rgba(124,92,255,.1);color:var(--color-accent)}
+.arch-node h4{font-size:.82rem;margin-bottom:3px;font-weight:600}
+.arch-node p{font-size:.7rem;color:var(--color-ink-soft);line-height:1.4}
+.arch-flow{position:relative;z-index:1;margin-top:18px;padding:14px 16px;background:var(--color-bg);border:1px dashed var(--color-border);border-radius:12px;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);font-size:.7rem;color:var(--color-ink-soft);flex-wrap:wrap;gap:4px}
+.arch-flow .arrow{color:var(--color-accent)}
+@media(max-width:600px){.arch-diagram{grid-template-columns:1fr 1fr}}
 
-/* Capabilities */
-.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+/* ── Capabilities ── */
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--color-border-light);border:1px solid var(--color-border-light);border-radius:var(--radius-lg);overflow:hidden}
 @media(max-width:880px){.cap-grid{grid-template-columns:1fr}}
-.cap-cell{background:var(--bg-1);padding:30px 28px;transition:background .2s}
-.cap-cell:hover{background:rgba(124,92,255,.04)}
-.cap-cell .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:rgba(124,92,255,.12);color:var(--accent-3);margin-bottom:18px;border:1px solid rgba(124,92,255,.18)}
-.cap-cell h3{font-size:1.02rem;margin-bottom:8px;font-weight:600}
-.cap-cell p{color:var(--text-2);font-size:.88rem;line-height:1.6}
+.cap-cell{background:var(--color-card-bg);padding:28px 26px;transition:background .2s}
+.cap-cell:hover{background:var(--color-chip-bg)}
+.cap-cell .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:rgba(124,92,255,.1);color:var(--color-accent);margin-bottom:16px}
+.cap-cell h3{font-size:.95rem;margin-bottom:6px;font-weight:600}
+.cap-cell p{color:var(--color-ink-soft);font-size:.84rem;line-height:1.55}
 
-/* Quick start + steps */
-.start-wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:start}
-@media(max-width:980px){.start-wrap{grid-template-columns:1fr;gap:40px}}
-.start-left h2{font-size:clamp(1.7rem,3vw,2.3rem);line-height:1.15;margin:18px 0 18px;letter-spacing:-0.02em}
-.start-left p{color:var(--text-2);font-size:1rem;line-height:1.7;margin-bottom:24px}
-.start-features{display:flex;flex-direction:column;gap:12px;margin-top:28px}
-.start-feat{display:flex;gap:12px;align-items:flex-start;color:var(--text-1);font-size:.92rem}
-.start-feat .check{width:22px;height:22px;border-radius:6px;flex-shrink:0;background:rgba(52,211,153,.14);color:var(--green);display:grid;place-items:center;margin-top:1px}
-.start-steps{display:flex;flex-direction:column;gap:14px}
-.start-step{display:flex;gap:16px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:22px 24px;transition:background .2s,border-color .2s}
-.start-step:hover{background:rgba(255,255,255,.04);border-color:var(--line-strong)}
-.start-step .num{width:32px;height:32px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;background:var(--grad-1);color:#0a0c14;font-weight:700;font-size:.85rem}
-.start-step .step-content h4{font-size:.92rem;font-weight:600;margin-bottom:4px}
-.start-step .step-content p{font-size:.82rem;color:var(--text-2);line-height:1.5}
+/* ── Quick Start ── */
+.start-wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+@media(max-width:880px){.start-wrap{grid-template-columns:1fr;gap:36px}}
+.start-left h2{font-size:clamp(1.5rem,2.6vw,2rem);line-height:1.15;margin:16px 0 14px;letter-spacing:-0.02em}
+.start-left p{color:var(--color-ink-soft);font-size:.95rem;line-height:1.65;margin-bottom:20px}
+.start-features{display:flex;flex-direction:column;gap:10px}
+.start-feat{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--color-ink-soft)}
+.start-feat .check{width:22px;height:22px;border-radius:6px;flex-shrink:0;background:rgba(52,211,153,.12);color:#10b981;display:grid;place-items:center;margin-top:1px}
+.steps{display:flex;flex-direction:column;gap:12px}
+.step-card{display:flex;gap:16px;background:var(--color-card-bg);border:1px solid var(--color-border-light);border-radius:var(--radius);padding:20px 22px;transition:background .2s,border-color .2s}
+.step-card:hover{background:var(--color-chip-bg);border-color:var(--color-border)}
+.step-card .num{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(135deg,var(--color-blue),var(--color-accent));color:#fff;font-weight:700;font-size:.82rem}
+.step-card h4{font-size:.9rem;font-weight:600;margin-bottom:3px}
+.step-card p{font-size:.8rem;color:var(--color-ink-soft);line-height:1.5}
 
-/* Install */
-.install-wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:start}
-@media(max-width:980px){.install-wrap{grid-template-columns:1fr;gap:40px}}
-.code-card{background:rgba(15,19,32,.8);border:1px solid var(--line-strong);border-radius:var(--radius-lg);overflow:hidden}
-.code-card-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
-.code-card-header .label{font-size:.82rem;font-weight:500;color:var(--text-0)}
-.code-card-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.65;color:var(--text-1)}
-.code-card-body .prompt{color:var(--accent-3);margin-right:.5rem}
-.code-card-body .comment{color:var(--text-3)}
-.install-options{display:flex;flex-direction:column;gap:12px}
-.install-option{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid var(--line);transition:background .2s,border-color .2s}
-.install-option:hover{background:rgba(255,255,255,.04);border-color:var(--line-strong)}
-.install-option .ic{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;background:rgba(124,92,255,.14);color:var(--accent-3)}
-.install-option h4{font-size:.88rem;font-weight:600;margin-bottom:2px}
-.install-option p{font-size:.8rem;color:var(--text-2);line-height:1.5}
+/* ── Performance ── */
+.perf-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+@media(max-width:960px){.perf-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:540px){.perf-grid{grid-template-columns:repeat(2,1fr)}}
+.perf-card{text-align:center;background:var(--color-card-bg);border:1px solid var(--color-border-light);border-radius:var(--radius);padding:24px 18px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.perf-card:hover{transform:translateY(-2px);border-color:var(--color-border);box-shadow:0 8px 20px -12px rgba(0,0,0,.08)}
+.perf-card .num{font-size:2rem;font-weight:700;color:var(--color-ink);line-height:1;letter-spacing:-0.02em;font-family:var(--font-display)}
+.perf-card .num .unit{font-size:1rem;color:var(--color-ink-muted);margin-left:2px}
+.perf-card .label{color:var(--color-ink-soft);font-size:.8rem;margin-top:8px;line-height:1.4}
 
-/* Performance strip */
-.perf-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
-@media(max-width:1000px){.perf-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.perf-grid{grid-template-columns:repeat(2,1fr)}}
-.perf-card{text-align:center;background:linear-gradient(180deg,rgba(124,92,255,.08),rgba(34,211,238,.04));border:1px solid var(--line-strong);border-radius:var(--radius);padding:26px 22px}
-.perf-card .num{font-size:2.4rem;font-weight:700;color:var(--text-0);line-height:1;letter-spacing:-0.02em}
-.perf-card .num .unit{font-size:1.1rem;color:var(--text-2);margin-left:4px}
-.perf-card .label{color:var(--text-2);font-size:.82rem;margin-top:10px;line-height:1.4}
+/* ── Roadmap ── */
+.rm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:700px){.rm-grid{grid-template-columns:1fr;max-width:420px;margin:0 auto}}
+.rm-card{background:var(--color-card-bg);border:1px solid var(--color-border-light);border-radius:var(--radius);padding:24px 24px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.rm-card:hover{transform:translateY(-2px);border-color:var(--color-border);box-shadow:0 8px 20px -12px rgba(0,0,0,.08)}
+.rm-card .phase{display:inline-block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);font-weight:600;margin-bottom:10px}
+.rm-card h3{font-size:.95rem;margin-bottom:6px;font-weight:600}
+.rm-card p{color:var(--color-ink-soft);font-size:.84rem;line-height:1.55}
 
-/* Roadmap */
-.roadmap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-@media(max-width:800px){.roadmap-grid{grid-template-columns:1fr}}
-.rm-card{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;transition:background .2s,border-color .2s,transform .2s}
-.rm-card:hover{background:rgba(255,255,255,.04);border-color:var(--line-strong);transform:translateY(-2px)}
-.rm-card .phase{display:inline-block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);font-weight:600;margin-bottom:12px}
-.rm-card h3{font-size:1.02rem;margin-bottom:8px;font-weight:600;line-height:1.3}
-.rm-card p{color:var(--text-2);font-size:.88rem;line-height:1.6}
+/* ── CTA ── */
+.cta-section{padding:72px 0;text-align:center;background:var(--color-bg-warm);border-top:1px solid var(--color-border-light)}
+.cta-section h2{font-size:clamp(1.4rem,2.6vw,2rem);font-weight:600;letter-spacing:-0.02em;margin-bottom:10px}
+.cta-section p{color:var(--color-ink-soft);font-size:1rem;margin-bottom:26px;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
-/* CTA */
-.cta{background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-0) 100%);border-top:1px solid var(--line)}
-.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-@media(max-width:980px){.cta-grid{grid-template-columns:1fr;gap:48px}}
-.cta-left h2{font-size:clamp(1.85rem,3.2vw,2.5rem);line-height:1.15;margin:18px 0 18px;letter-spacing:-0.02em}
-.cta-left p{color:var(--text-2);font-size:1rem;line-height:1.7;margin-bottom:28px}
-.cta-btns{display:flex;gap:12px;flex-wrap:wrap}
-.cta-right .news-card{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
-.news-card h4{font-size:.95rem;margin-bottom:14px;font-weight:600;color:var(--text-1)}
-.news-form{display:flex;gap:10px}
-.news-form input{flex:1;padding:.75rem 1rem;border-radius:10px;border:1px solid var(--line-strong);background:rgba(5,6,10,.5);font-family:inherit;font-size:.9rem;color:var(--text-0);outline:none;transition:border-color .2s}
-.news-form input:focus{border-color:var(--accent-3)}
-.news-form input::placeholder{color:var(--text-3)}
+/* ── Footer ── */
+.footer{background:var(--color-chip-bg);padding:40px 32px;text-align:center;border-top:1px solid var(--color-border-light)}
+.footer-inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;font-size:12px;font-weight:400;letter-spacing:.04em;color:var(--color-ink-muted)}
+.footer-sep{color:var(--color-border);user-select:none}
+.footer-link{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:.5px;transition:color .2s}
+.footer-link:hover{color:var(--color-ink)}
 
-/* Footer */
-footer{border-top:1px solid var(--line);padding:56px 0 36px}
-.ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px}
-@media(max-width:880px){.ft-grid{grid-template-columns:1fr 1fr;gap:36px}}
-.ft-brand p{color:var(--text-3);font-size:.85rem;margin-top:16px;line-height:1.6;max-width:300px}
-.ft-col h4{font-size:.85rem;font-weight:600;margin-bottom:18px;color:var(--text-0)}
-.ft-col a{display:block;font-size:.84rem;color:var(--text-2);margin-bottom:12px;transition:color .2s}
-.ft-col a:hover{color:var(--text-0)}
-.ft-bottom{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--text-3);flex-wrap:wrap;gap:12px}
-.ft-socials{display:flex;gap:14px}
+/* ── Reveal ── */
+/* ── Douyin Banner ── */
+.dy-banner{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.dy-banner-inner{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.dy-text{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.92);font-size:.92rem;font-weight:500}
+.dy-icon{font-size:1.2rem}
+.dy-qr-wrap{display:flex;align-items:center;gap:10px}
+.dy-qr{width:72px;height:72px;border-radius:10px;border:2px solid rgba(255,255,255,.2);object-fit:cover;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.dy-qr:active{transform:scale(.95)}
+.dy-qr:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.dy-hint{font-size:.75rem;color:rgba(255,255,255,.6)}
+@media(max-width:640px){.dy-banner-inner{flex-direction:column;gap:10px;text-align:center}.dy-text{font-size:.85rem}}
+
+/* ── Lightbox ── */
+.lightbox{display:none;position:fixed;z-index:999;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:24px;cursor:pointer;animation:lb-fade .25s ease}
+.lightbox.open{display:flex}
+.lightbox img{max-width:min(90vw,360px);max-height:90vh;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.5);cursor:default;animation:lb-scale .3s cubic-bezier(.22,1,.36,1)}
+.lightbox .lb-close{position:fixed;top:20px;right:26px;font-size:28px;color:#fff;cursor:pointer;opacity:.7;transition:opacity .2s;line-height:1;background:none;border:none;font-family:inherit}
+.lightbox .lb-close:hover{opacity:1}
+.lightbox .lb-label{position:fixed;bottom:32px;left:0;right:0;text-align:center;color:rgba(255,255,255,.7);font-size:.82rem;pointer-events:none}
+@keyframes lb-fade{from{opacity:0}to{opacity:1}}
+@keyframes lb-scale{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .5s cubic-bezier(.22,1,.36,1),transform .5s cubic-bezier(.22,1,.36,1)}
 .reveal.in{opacity:1;transform:translateY(0)}
@@ -283,53 +300,77 @@ footer{border-top:1px solid var(--line);padding:56px 0 36px}
   <symbol id="gh" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" fill="currentColor"/></symbol>
   <symbol id="check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 16 14 18 21 12 16 6 21 8 14 2 9 9 9 12 2" fill="currentColor"/></symbol>
+  <symbol id="layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 17 12 22 22 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 12 12 17 22 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
-<!-- Nav -->
+<!-- ── Nav ── -->
 <nav class="nav">
-  <div class="container">
-    <div class="nav-inner">
-      <a href="#" class="brand">
-        <div class="brand-mark"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        JWCode
+  <div class="nav-inner">
+    <a href="#" class="brand">
+      <div class="brand-mark">
+        <svg width="14" height="14" viewBox="0 0 64 64" fill="none">
+          <path d="M22 22 L14 32 L22 42" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9"/>
+          <path d="M42 22 L50 32 L42 42" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9"/>
+          <path d="M36 18 L28 46" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      JWCode
+    </a>
+    <div class="nav-links">
+      <a href="#usecases" class="nav-link" data-i18n="nav_uc">Use Cases</a>
+      <a href="#install" class="nav-link" data-i18n="nav_install_nav">Install</a>
+      <a href="#arch" class="nav-link" data-i18n="nav_arch">Architecture</a>
+      <a href="#roadmap" class="nav-link" data-i18n="nav_roadmap">Roadmap</a>
+      <a href="https://github.com" target="_blank" class="nav-link">GitHub</a>
+    </div>
+    <div class="nav-cta">
+      <div class="lang-switch">
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn active" onclick="setLang('zh')">中</button>
+      </div>
+      <a href="https://github.com" target="_blank" class="btn btn--sm btn--ghost">
+        <svg width="14" height="14" viewBox="0 0 24 24"><use href="#star"/></svg> Star
       </a>
-      <a href="tel:18811417143" class="nav-contact">联系人：王经理    电话微信同号： 18811417143</a>
-      <div class="nav-links">
-        <a href="#usecases" class="nav-link" data-i18n="nav_uc">Use Cases</a>
-        <a href="#interfaces" class="nav-link" data-i18n="nav_products">Interfaces</a>
-        <a href="#how" class="nav-link" data-i18n="nav_how">How it works</a>
-        <a href="#roadmap" class="nav-link" data-i18n="nav_roadmap">Roadmap</a>
-        <a href="https://github.com" target="_blank" class="nav-link" data-i18n="nav_github">GitHub</a>
-      </div>
-      <div class="nav-cta">
-        <div class="lang-switch">
-          <button class="lang-btn" onclick="setLang('en')">EN</button>
-          <button class="lang-btn active" onclick="setLang('zh')">中</button>
-        </div>
-        <a href="#install" class="btn btn-grad" data-i18n="nav_install">Get Started</a>
-      </div>
     </div>
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- ── Douyin Group Banner ── -->
+<section class="dy-banner">
+  <div class="container">
+    <div class="dy-banner-inner">
+      <div class="dy-text">
+        <span class="dy-icon">📱</span>
+        <span data-i18n="dy_welcome">加入抖音粉丝群，获取最新资讯与技术支持</span>
+      </div>
+      <div class="dy-qr-wrap">
+        <img src="douyin.png" alt="抖音群二维码" class="dy-qr" onclick="openLightbox(this.src)" loading="lazy">
+        <span class="dy-hint" data-i18n="dy_hint">扫码进群交流</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Hero ── -->
 <section class="hero">
   <div class="container">
     <div class="hero-grid">
-      <div>
-        <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero_eyebrow">v1.0 · Java AI Coding Engine</span></span>
-        <h1 data-i18n="hero_title">Ship Java faster with an AI that <span class="grad-text accent">actually reads your repo</span>.</h1>
-        <p class="hero-sub" data-i18n="hero_sub">JWCode is one AI engine for the terminal, the browser, and your IDE. It plans, it explains, it asks before it writes — so you stay in control of every change.</p>
-        <div class="hero-ctas">
-          <a href="#install" class="btn btn-primary" data-i18n="hero_install">Install JWCode</a>
-          <a href="#usecases" class="btn btn-ghost" data-i18n="hero_explore">See what it can do →</a>
+      <div class="reveal">
+        <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero_eyebrow">v1.0 · Java-Native AI Coding Agent</span></span>
+        <h1 data-i18n="hero_title">Ship Java faster with an AI that <span class="grad-text">reads your repo</span>.</h1>
+        <p class="hero-sub" data-i18n="hero_sub">JWCode is a fully open-source AI coding engine for Java. Self-hosted, multi-LLM, dual interface — one engine for your terminal and browser.</p>
+        <div class="hero-badges">
+          <span class="hero-badge"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg> <span data-i18n="badge_oss">Apache 2.0 · Open Source</span></span>
+          <span class="hero-badge"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg> <span data-i18n="badge_models">15+ Model Providers</span></span>
+          <span class="hero-badge"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg> <span data-i18n="badge_tools">50+ Built-in Tools</span></span>
         </div>
-        <div class="hero-trust">
-          <span class="pill"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg> <span data-i18n="trust_models">Works with 15+ model providers</span></span>
-          <span class="pill"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg> <span data-i18n="trust_node">Node 18+ · Java 17+</span></span>
+        <div class="hero-ctas">
+          <a href="#install" class="btn btn--primary" data-i18n="hero_install">Install JWCode</a>
+          <a href="#usecases" class="btn btn--ghost" data-i18n="hero_explore">See what it can do →</a>
         </div>
       </div>
-      <div style="position:relative">
+      <div class="reveal" style="transition-delay:.15s">
         <div class="terminal-card">
           <div class="terminal-bar">
             <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
@@ -337,16 +378,16 @@ footer{border-top:1px solid var(--line);padding:56px 0 36px}
           </div>
           <div class="terminal-body">
             <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">jwcode start</span></div>
-            <div class="term-line" style="margin-top:8px"><span class="term-prompt">JWCode></span><span class="term-cmd">Refactor AuthService to use a strategy pattern</span></div>
+            <div class="term-line" style="margin-top:8px"><span class="term-prompt">JWCode></span><span class="term-cmd" data-i18n="term_cmd">Refactor AuthService to use strategy pattern</span></div>
             <div class="term-line" style="margin-top:8px">
-              <span class="term-tag tag-plan">PLAN</span><span class="term-out">Mapped call graph. 4 files, 2 strategies proposed.</span>
+              <span class="term-tag tag-plan">PLAN</span><span class="term-out" data-i18n="term_plan">Mapped call graph. 4 files, 2 strategies proposed.</span>
             </div>
             <div class="term-line"><span class="term-tag tag-tool">TOOL</span><span class="term-out">read_file src/auth/AuthService.java</span></div>
             <div class="term-line"><span class="term-tag tag-tool">TOOL</span><span class="term-out">read_file src/auth/JwtProvider.java</span></div>
             <div class="term-line"><span class="term-tag tag-tool">TOOL</span><span class="term-out">tree-sitter parse src/auth/**</span></div>
-            <div class="term-line" style="margin-top:6px"><span class="term-tag tag-out">APPROVE</span><span class="term-out">Apply 3 edits to AuthService.java, create AuthStrategy.java?</span></div>
-            <div class="term-line"><span class="term-out" style="color:var(--green)">y</span></div>
-            <div class="term-line" style="margin-top:6px"><span class="term-tag tag-out">DONE</span><span class="term-out">Tests green. +84 / -22, 2 new files. Reverted in 1 cmd.</span></div>
+            <div class="term-line" style="margin-top:6px"><span class="term-tag tag-out">APPROVE</span><span class="term-out" data-i18n="term_approve">Apply 3 edits &amp; create AuthStrategy.java?</span></div>
+            <div class="term-line"><span class="term-out" style="color:var(--color-green)">y</span></div>
+            <div class="term-line" style="margin-top:6px"><span class="term-tag tag-out">DONE</span><span class="term-out" data-i18n="term_done">Tests green. +84 / -22, 2 new files.</span></div>
           </div>
         </div>
       </div>
@@ -354,510 +395,424 @@ footer{border-top:1px solid var(--line);padding:56px 0 36px}
   </div>
 </section>
 
-<!-- Install (moved up — right after Hero) -->
-<section id="install">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><span class="dot"></span> <span data-i18n="install_eyebrow">Installation</span></span>
-      <h2 data-i18n="install_title">One command. <span class="grad-text">Any platform.</span></h2>
-      <p data-i18n="install_sub">npm is the default. Pick the path that fits your setup.</p>
-    </div>
-    <div class="install-wrap reveal">
-      <div class="code-card">
-        <div class="code-card-header"><span class="label" data-i18n="install_label">npm</span><button class="btn btn-ghost" onclick="copyCmd(this)" data-i18n="install_copy" style="padding:.5rem .9rem;font-size:.78rem">Copy</button></div>
-        <div class="code-card-body"><span class="prompt">$</span> npm install -g jwcode<br><span class="prompt">$</span> jwcode start<br><br><span class="comment"># then open http://localhost:8080</span></div>
-      </div>
-      <div class="install-options">
-        <div class="install-option"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="8 6 2 12 8 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="install_opt1_t">npx one-liner</h4><p data-i18n="install_opt1_d"><code class="mono">npx jwcode start</code> — no global install needed.</p></div></div>
-        <div class="install-option"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 16 14 18 21 12 16 6 21 8 14 2 9 9 9 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="install_opt2_t">Platform bundle</h4><p data-i18n="install_opt2_d">Pre-built JRE bundle. No toolchain required.</p></div></div>
-        <div class="install-option"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="install_opt3_t">Docker</h4><p data-i18n="install_opt3_d"><code class="mono">docker pull jwcode/jwcode</code></p></div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Social proof strip -->
+<!-- ── Stats ── -->
 <section class="proof">
   <div class="container">
-    <div class="proof-label" data-i18n="proof_label">Bring your own stack — works with the models and runtimes you already use</div>
-    <div class="proof-row">
-      <span class="logo-word"><span class="ic"></span>OpenAI</span>
-      <span class="logo-word"><span class="ic"></span>Anthropic</span>
-      <span class="logo-word"><span class="ic"></span>Google</span>
-      <span class="logo-word"><span class="ic"></span>MiniMax</span>
-      <span class="logo-word"><span class="ic"></span>DeepSeek</span>
-      <span class="logo-word"><span class="ic"></span>Ollama</span>
+    <div class="proof-label reveal" data-i18n="proof_label">Trusted by teams that ship with AI</div>
+    <div class="stats-row reveal">
+      <div class="stat-item"><div class="num">15<span class="unit">+</span></div><div class="label" data-i18n="stat_models">Model Providers</div></div>
+      <div class="stat-item"><div class="num">50<span class="unit">+</span></div><div class="label" data-i18n="stat_tools">Built-in Tools</div></div>
+      <div class="stat-item"><div class="num">7<span class="unit">-layer</span></div><div class="label" data-i18n="stat_security">Security Layers</div></div>
     </div>
-    <div class="proof-stat">
-      <span><strong>15+</strong><span data-i18n="stat_models">model providers</span></span>
-      <span><strong>47</strong><span data-i18n="stat_tools">built-in tools</span></span>
-      <span><strong>17</strong><span data-i18n="stat_agents">agent types</span></span>
-      <span><strong>100ms</strong><span data-i18n="stat_lat">first-token p50</span></span>
+    <div class="proof-row reveal">
+      <span class="proof-item"><span class="ic"></span>DeepSeek</span>
+      <span class="proof-item"><span class="ic"></span>Claude</span>
+      <span class="proof-item"><span class="ic"></span>OpenAI</span>
+      <span class="proof-item"><span class="ic"></span>Google</span>
+      <span class="proof-item"><span class="ic"></span>MiniMax</span>
+      <span class="proof-item"><span class="ic"></span>Ollama</span>
     </div>
   </div>
 </section>
 
-<!-- Use Cases (value first) -->
+<!-- ── Use Cases ── -->
 <section id="usecases">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="uc_eyebrow">What you can do today</span></span>
-      <h2 data-i18n="uc_title">From <span class="grad-text">understanding legacy code</span> to <span class="grad-text-2">shipping the patch</span> — in one session.</h2>
-      <p data-i18n="uc_sub">Same engine, same engine-trace, same approval log. CLI for the keyboard crowd, Web UI for the rest.</p>
+      <h2 data-i18n="uc_title">From <span style="color:var(--color-accent)">reading legacy code</span> to <span style="color:var(--color-warm)">shipping the patch</span>.</h2>
+      <p data-i18n="uc_sub">Same engine, same trace, same approval log. Terminal or Web — your call.</p>
     </div>
     <div class="uc-grid reveal">
-      <a href="#interfaces" class="uc-card">
-        <span class="tag" data-i18n="uc1_tag">Decode</span>
-        <h3 data-i18n="uc1_t">Read a repo you didn't write</h3>
-        <p data-i18n="uc1_d">Index code, trace call graphs, and get a plain-English walkthrough of any module in minutes — not days.</p>
-        <svg class="arrow" width="18" height="18" viewBox="0 0 24 24"><use href="#arrow"/></svg>
-      </a>
-      <a href="#interfaces" class="uc-card">
-        <span class="tag" data-i18n="uc2_tag">Refactor</span>
-        <h3 data-i18n="uc2_t">Multi-file refactors with a paper trail</h3>
-        <p data-i18n="uc2_d">Dependency upgrades, framework migrations, naming sweeps. Approve per-step, roll back in one command.</p>
-        <svg class="arrow" width="18" height="18" viewBox="0 0 24 24"><use href="#arrow"/></svg>
-      </a>
-      <a href="#interfaces" class="uc-card">
-        <span class="tag" data-i18n="uc3_tag">Parallel</span>
-        <h3 data-i18n="uc3_t">Big jobs run on an agent swarm</h3>
-        <p data-i18n="uc3_d">Decompose into a DAG. Workers run in parallel. Orchestrator merges results. You review the diff, not the noise.</p>
-        <svg class="arrow" width="18" height="18" viewBox="0 0 24 24"><use href="#arrow"/></svg>
-      </a>
-      <a href="#interfaces" class="uc-card">
-        <span class="tag" data-i18n="uc4_tag">Test</span>
-        <h3 data-i18n="uc4_t">Tests that match real behavior</h3>
-        <p data-i18n="uc4_d">Reads the code first. Generates unit, integration, and edge-case tests aligned to the actual contract — not the doc.</p>
-        <svg class="arrow" width="18" height="18" viewBox="0 0 24 24"><use href="#arrow"/></svg>
-      </a>
-      <a href="#install" class="uc-card">
-        <span class="tag" data-i18n="uc5_tag">Safety</span>
-        <h3 data-i18n="uc5_t">Plan, approve, then apply — every change</h3>
-        <p data-i18n="uc5_d">AI proposes, you decide. Risk-classified permissions from CRITICAL to LOW. Docker sandbox, injection detection, 7-layer permission classifier. Revert any step in one command.</p>
-        <svg class="arrow" width="18" height="18" viewBox="0 0 24 24"><use href="#arrow"/></svg>
-      </a>
-      <a href="#interfaces" class="uc-card">
-        <span class="tag" data-i18n="uc6_tag">Team</span>
-        <h3 data-i18n="uc6_t">One engine, shared across the team</h3>
-        <p data-i18n="uc6_d">Sessions, traces, and approval logs are portable. SharedMemory and SessionSharing services out of the box.</p>
-        <svg class="arrow" width="18" height="18" viewBox="0 0 24 24"><use href="#arrow"/></svg>
-      </a>
+      <div class="uc-card">
+        <span class="tag" data-i18n="uc1_tag">Multi-LLM</span>
+        <h3 data-i18n="uc1_t">Choose from 15+ model providers</h3>
+        <p data-i18n="uc1_d">DeepSeek, Claude, OpenAI, Google, MiniMax, Ollama. Key rotation, failover, rate-limit awareness. One config, any model.</p>
+      </div>
+      <div class="uc-card">
+        <span class="tag" data-i18n="uc2_tag">Dual UI</span>
+        <h3 data-i18n="uc2_t">Terminal TUI + Web SPA</h3>
+        <p data-i18n="uc2_d">Ink/React TUI with 26 slash commands, or React SPA with Monaco editor and xterm.js. Same engine, two surfaces.</p>
+      </div>
+      <div class="uc-card">
+        <span class="tag" data-i18n="uc3_tag">Tools</span>
+        <h3 data-i18n="uc3_t">50+ built-in tools, plugin-extensible</h3>
+        <p data-i18n="uc3_d">File read/write/edit, glob/grep search, bash/powershell, web fetch, git, Playwright, LSP, MCP — and a plugin API for more.</p>
+      </div>
+      <div class="uc-card">
+        <span class="tag" data-i18n="uc4_tag">Safety</span>
+        <h3 data-i18n="uc4_t">Plan / Act / Goal permission modes</h3>
+        <p data-i18n="uc4_d">Three isolation modes: Plan (read-only), Act (auto-approve), Goal (task-driven). Docker sandbox, 7-layer ACL, HookChain interceptor.</p>
+      </div>
+      <div class="uc-card">
+        <span class="tag" data-i18n="uc5_tag">Plugin</span>
+        <h3 data-i18n="uc5_t">Extend via plugin API</h3>
+        <p data-i18n="uc5_d">Custom agents and tools through <code>jwcode-plugin-api</code>. Maven-friendly, integrates with your existing Java toolchain.</p>
+      </div>
+      <div class="uc-card">
+        <span class="tag" data-i18n="uc6_tag">Channels</span>
+        <h3 data-i18n="uc6_t">Multi-platform messaging</h3>
+        <p data-i18n="uc6_d">WeChat integration built-in. Extensible architecture for Feishu, DingTalk, and more. Keep JWCode in your workflow.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- About / positioning -->
-<section id="how">
+<!-- ── Install ── -->
+<section id="install">
   <div class="container">
     <div class="section-head reveal">
-      <span class="eyebrow"><span class="dot"></span> <span data-i18n="intro_eyebrow">How JWCode works</span></span>
-      <h2 data-i18n="intro_title">One engine, four layers, <span class="grad-text">fully traceable</span>.</h2>
-      <p data-i18n="intro_sub">A Java engine, two surfaces, every model. Plan-then-approve by default — so AI proposes, you decide.</p>
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="install_eyebrow">Installation</span></span>
+      <h2 data-i18n="install_title">One command. <span style="color:var(--color-accent)">Any platform.</span></h2>
+      <p data-i18n="install_sub">macOS, Linux, Windows. No cloud signup, no credit card.</p>
     </div>
-    <div class="intro-grid">
+    <div class="install-grid reveal">
+      <div>
+        <div class="code-card">
+          <div class="code-card-header">
+            <span class="label" data-i18n="install_label">Quick install</span>
+            <button class="btn btn--sm btn--ghost" onclick="copyCmd(this)" data-i18n="install_copy" style="padding:.4rem .8rem;font-size:.75rem">Copy</button>
+          </div>
+          <div class="code-card-body">
+            <span class="prompt">$</span> npm install -g @jwcode/cli<br>
+            <span class="prompt">$</span> jwcode start<br><br>
+            <span class="comment"># → opens http://localhost:8080</span>
+          </div>
+        </div>
+      </div>
+      <div class="install-options">
+        <div class="install-opt">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 16 14 18 21 12 16 6 21 8 14 2 9 9 9 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h4 data-i18n="install_opt1_t">npm global</h4><p data-i18n="install_opt1_d"><code>npm install -g @jwcode/cli</code> — one command, ready to go.</p></div>
+        </div>
+        <div class="install-opt">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="8 6 2 12 8 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h4 data-i18n="install_opt2_t">Build from source</h4><p data-i18n="install_opt2_d"><code>mvn install -pl jwcode-core,jwcode-web -am -DskipTests</code> — Java 17+.</p></div>
+        </div>
+        <div class="install-opt">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h4 data-i18n="install_opt3_t">Docker</h4><p data-i18n="install_opt3_d">Pre-built JRE bundle. No toolchain required.</p></div>
+        </div>
+        <div class="install-opt">
+          <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h4 data-i18n="install_opt4_t">Web UI dev</h4><p data-i18n="install_opt4_d"><code>cd jwcode-web && npm run dev</code> — React SPA with Monaco + xterm.js.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Architecture ── -->
+<section class="arch-section" id="arch">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="arch_eyebrow">How JWCode works</span></span>
+      <h2 data-i18n="arch_title">One engine, four layers, <span style="color:var(--color-accent)">fully traceable</span>.</h2>
+      <p data-i18n="arch_sub">A Java engine, two surfaces, every model. Plan-then-approve by default.</p>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-left reveal">
+        <p data-i18n="arch_p1">JWCode is built as a modular Java 17 application with a React frontend and Ink-based terminal UI. The agent core, tool system, and security layer are fully open-source (Apache 2.0).</p>
+        <p data-i18n="arch_p2">50+ built-in tools, multi-agent orchestration, Plan/Act/Goal permission system — all connected through a 4-layer security and observability stack.</p>
+        <div class="arch-stats">
+          <div class="arch-stat"><div class="num">50<span class="plus">+</span></div><div class="label" data-i18n="arch_s1">Built-in tools &amp; plugins</div></div>
+          <div class="arch-stat"><div class="num">15<span class="plus">+</span></div><div class="label" data-i18n="arch_s2">Model providers</div></div>
+          <div class="arch-stat"><div class="num">4<span class="plus">-layer</span></div><div class="label" data-i18n="arch_s4">Security + observability</div></div>
+        </div>
+      </div>
       <div class="reveal">
-        <p style="color:var(--text-2);font-size:1rem;line-height:1.7;margin-bottom:14px" data-i18n="intro_p1">JWCode is a Java AI coding engine that runs locally, talks to any major model, and exposes the same surface in your terminal, browser, and IDE.</p>
-        <p style="color:var(--text-2);font-size:1rem;line-height:1.7" data-i18n="intro_p2">No context-switching. No copy-paste. No lost sessions. Every plan, every tool call, every approval — logged and replayable.</p>
-        <div class="intro-stat-row">
-          <div class="stat-pill"><div class="num">47<span class="plus">+</span></div><div class="label" data-i18n="intro_s1">Built-in tools &amp; plugins</div></div>
-          <div class="stat-pill"><div class="num">15<span class="plus">+</span></div><div class="label" data-i18n="intro_s2">Model providers</div></div>
-          <div class="stat-pill"><div class="num">17<span class="plus">+</span></div><div class="label" data-i18n="intro_s3">Agent types</div></div>
-          <div class="stat-pill"><div class="num">7<span class="plus">-layer</span></div><div class="label" data-i18n="intro_s4">Permission classifier</div></div>
-        </div>
-      </div>
-      <div class="intro-visual reveal">
-        <div class="arch-diagram">
-          <div class="arch-node"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="20" y2="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h4 data-i18n="arch1_t">CLI / TUI</h4><p data-i18n="arch1_d">Ink/React TUI, command palette, session manager, @ file ref</p></div>
-          <div class="arch-node"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><h4 data-i18n="arch2_t">Web UI</h4><p data-i18n="arch2_d">React SPA, Monaco, xterm.js, streaming chat, hook editor</p></div>
-          <div class="arch-node"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 17 12 22 22 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4 data-i18n="arch3_t">Engine</h4><p data-i18n="arch3_d">Java, 47 tools, Agent Graph DAG, SQLite checkpoints</p></div>
-          <div class="arch-node"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><h4 data-i18n="arch4_t">Models</h4><p data-i18n="arch4_d">OpenAI, Anthropic, Google, MiniMax, DeepSeek, Ollama</p></div>
-          <div class="arch-node"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h6v6H9z" fill="currentColor"/></svg></div><h4 data-i18n="arch5_t">Codebase</h4><p data-i18n="arch5_d">Tree-sitter, MCP protocol, persistent memory</p></div>
-          <div class="arch-node"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4 data-i18n="arch6_t">Safety</h4><p data-i18n="arch6_d">Docker sandbox, 7-layer ACL, lifecycle hooks</p></div>
-        </div>
-        <div class="arch-flow">Prompt <span class="arrow">→</span> Plan <span class="arrow">→</span> Agent DAG <span class="arrow">→</span> Parallel Exec <span class="arrow">→</span> Approve <span class="arrow">→</span> Apply</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Two interfaces -->
-<section id="interfaces">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow"><span class="dot"></span> <span data-i18n="products_eyebrow">Two interfaces</span></span>
-      <h2 data-i18n="products_title">Terminal keyboard or browser mouse. <span class="grad-text">Same engine.</span></h2>
-      <p data-i18n="products_sub">Sessions, traces, and approval logs sync between CLI and Web. Switch mid-flow without losing context.</p>
-    </div>
-    <div class="products-tabs-wrap reveal">
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('cli',this)" data-i18n="tab_cli">CLI · TUI</button>
-        <button class="tab" onclick="switchTab('web',this)" data-i18n="tab_web">Web UI</button>
-      </div>
-    </div>
-
-    <div id="panel-cli" class="product-panel active">
-      <div class="product-grid">
-        <div class="product-features">
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="20" y2="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div><h4 data-i18n="cli_feat1_t">Interactive TUI</h4><p data-i18n="cli_feat1_d">Full-screen terminal with command palette, session history, file picker, diff viewer, model picker.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="cli_feat2_t">Plan / Act / Wait modes</h4><p data-i18n="cli_feat2_d">Plan first, act with tools, wait for approval. Tab to switch. The model never writes without your yes.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><h4 data-i18n="cli_feat3_t">Session management</h4><p data-i18n="cli_feat3_d">Multi-session with history picker (Ctrl+R). Each session has its own context, trace, and checkpoint recovery.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="cli_feat4_t">Approval workflow</h4><p data-i18n="cli_feat4_d">All writes require explicit approval. CRITICAL / HIGH / MEDIUM / LOW risk classification, per action.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8v5a3 3 0 0 0 3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><div><h4 data-i18n="cli_feat5_t">@ file reference</h4><p data-i18n="cli_feat5_d">Type @ to fuzzy-search files. Attach file contents as context blocks automatically.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="15" x2="20" y2="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="3" x2="8" y2="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="16" y1="3" x2="14" y2="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="cli_feat6_t">7 slash commands</h4><p data-i18n="cli_feat6_d">/doctor, /cost, /compact, /review, /security-review, /memory, /tasks.</p></div></div>
-        </div>
-        <div class="product-mock">
-          <div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">~/jwcode — TUI</span></div>
-          <div class="mock-body">
-            <div class="mock-tile"><div class="row"><span>$ jwcode start</span></div></div>
-            <div class="mock-tile"><div class="row"><span>JWCode&gt; /review src/auth/AuthService.java</span></div></div>
-            <div class="mock-tile"><div class="row"><span class="cyan">PLAN</span> <span>Analyzing codebase...</span></div><div class="row"><span class="accent">TOOL</span> <span>read_file (3 files)</span></div><div class="row"><span class="green">OUTPUT</span> <span>2 issues found</span></div></div>
+        <div class="arch-visual">
+          <div class="arch-diagram">
+            <div class="arch-node"><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="20" y2="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h4 data-i18n="arch_node1_t">CLI / TUI</h4><p data-i18n="arch_node1_d">Ink/React TUI, 26 slash commands, session manager</p></div>
+            <div class="arch-node"><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><h4 data-i18n="arch_node2_t">Web UI</h4><p data-i18n="arch_node2_d">React SPA, Monaco editor, xterm.js, streaming chat</p></div>
+            <div class="arch-node"><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 17 12 22 22 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 12 12 17 22 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4 data-i18n="arch_node3_t">Engine</h4><p data-i18n="arch_node3_d">Java 17, 50+ tools, multi-agent orchestration, 3 permission modes</p></div>
+            <div class="arch-node"><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><h4 data-i18n="arch_node4_t">Models</h4><p data-i18n="arch_node4_d">DeepSeek, Claude, OpenAI, Google, MiniMax, Ollama</p></div>
+            <div class="arch-node"><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h6v6H9z" fill="currentColor"/></svg></div><h4 data-i18n="arch_node5_t">Codebase</h4><p data-i18n="arch_node5_d">Tree-sitter, MCP protocol, persistent memory</p></div>
+            <div class="arch-node"><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4 data-i18n="arch_node6_t">Safety</h4><p data-i18n="arch_node6_d">Docker sandbox, 7-layer ACL, HookChain interceptor</p></div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="panel-web" class="product-panel">
-      <div class="product-grid">
-        <div class="product-features">
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="8 6 2 12 8 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="web_feat1_t">Monaco code editor</h4><p data-i18n="web_feat1_d">Full editor with syntax highlighting, multi-cursor, bracket matching, diff view.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="19" x2="20" y2="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div><h4 data-i18n="web_feat2_t">Dual terminal</h4><p data-i18n="web_feat2_d">xterm.js with ttyd PTY sidecar. Real command execution inside the browser.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="web_feat3_t">Streaming AI chat</h4><p data-i18n="web_feat3_d">Token-by-token streaming. Markdown, code blocks, KaTeX, @ file references.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="web_feat4_t">Activity &amp; observability</h4><p data-i18n="web_feat4_d">Real-time activity log, hook approvals, metrics dashboard, token analytics, cost tracking.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="web_feat5_t">Hook management UI</h4><p data-i18n="web_feat5_d">Visual lifecycle hook editor. Configure rules, view logs, set risk levels.</p></div></div>
-          <div class="pf-item"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h4 data-i18n="web_feat6_t">Settings &amp; config</h4><p data-i18n="web_feat6_d">Theme, workspace, model config, feature toggles, config file editor.</p></div></div>
-        </div>
-        <div class="product-mock">
-          <div class="mock-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost:8080 — JWCode Web</span></div>
-          <div class="mock-body">
-            <div class="mock-tile"><div class="row"><span class="accent">Status</span> <span>deepseek-chat · 1.2k / 3.4k tok · 12.4 t/s</span></div></div>
-            <div class="mock-tile"><div class="row"><span class="cyan">Act</span> <span>Analyzing import structure...</span></div><div class="row"><span class="accent">Tool</span> <span>tree-sitter parse src/main/</span></div></div>
-            <div class="mock-tile"><div class="row"><span class="green">Step 3/5</span> <span>Refactoring AuthService.java</span></div><div class="row"><span>+42 / -12 / 3 files changed</span></div></div>
-          </div>
+          <div class="arch-flow">Prompt <span class="arrow">→</span> Plan <span class="arrow">→</span> Parallel Exec <span class="arrow">→</span> Approve <span class="arrow">→</span> Apply</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Capabilities (collapsed, scannable) -->
+<!-- ── Capabilities ── -->
 <section id="capabilities">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="cap_eyebrow">Under the hood</span></span>
-      <h2 data-i18n="cap_title">Everything an AI coding tool <span class="grad-text">should have shipped with</span>.</h2>
-      <p data-i18n="cap_sub">A complete toolbox, ready on day one. Every primitive you'd build yourself.</p>
+      <h2 data-i18n="cap_title">Everything a coding agent <span style="color:var(--color-accent)">should ship with</span>.</h2>
+      <p data-i18n="cap_sub">A complete toolbox, ready on day one.</p>
     </div>
     <div class="cap-grid reveal">
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><h3 data-i18n="cap1_t">Multi-model AI</h3><p data-i18n="cap1_d">OpenAI, Anthropic, Google, MiniMax, Ollama, DeepSeek. Key rotation, rate-limit awareness, graceful failover.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap2_t">47 built-in tools</h3><p data-i18n="cap2_d">File ops, glob search, codebase indexing, bash, web search, MCP, static analysis. Plugin-extensible.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 17 12 22 22 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="2 12 12 17 22 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap3_t">Agent Graph DAG</h3><p data-i18n="cap3_d">Declarative DAG engine. Channel state, BSP execution, SQLite checkpointing for pause and resume.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h6v6H9z" fill="currentColor"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3 data-i18n="cap4_t">Key rotation &amp; pooling</h3><p data-i18n="cap4_d">Multi-key pool, rotation, rate-limit awareness, graceful degradation.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap5_t">Streaming &amp; real-time</h3><p data-i18n="cap5_d">Token-by-token streaming. WebSocket transport, sub-100ms latency, partial rendering.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap6_t">Perception &amp; planning</h3><p data-i18n="cap6_d">Analyzes the codebase before acting. Architecture-aware planning, fully traceable.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap7_t">Safety &amp; sandbox</h3><p data-i18n="cap7_d">Docker sandbox, injection detection, 150+ read-only validators, 7-layer permission classifier.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="15" x2="20" y2="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="3" x2="8" y2="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="16" y1="3" x2="14" y2="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap8_t">Slash commands &amp; @ ref</h3><p data-i18n="cap8_d">7 built-in slash commands. Type @ to fuzzy-search and attach any file as context.</p></div>
-      <div class="cap-cell"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap9_t">Observability &amp; recovery</h3><p data-i18n="cap9_d">Metrics dashboard, cost tracker, EMA-smoothed token rates. SQLite checkpoints, AutoDream service.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><h3 data-i18n="cap1_t">Multi-LLM</h3><p data-i18n="cap1_d">DeepSeek, Claude, OpenAI, Google, MiniMax, Ollama. Key rotation, failover, rate-limit awareness.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap3_t">50+ Built-in Tools</h3><p data-i18n="cap3_d">File ops, glob/grep, codebase indexing, bash, web search, MCP, Playwright, Git, LSP.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap4_t">Security &amp; Sandbox</h3><p data-i18n="cap4_d">Docker sandbox, command injection detection, 7-layer permission classifier, HookChain.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap5_t">Plan / Act / Goal</h3><p data-i18n="cap5_d">Three permission modes: Plan (read-only), Act (auto-approve), Goal (task-driven). Always in control.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap6_t">Plugin API</h3><p data-i18n="cap6_d">Extend with custom agents and tools via <code>jwcode-plugin-api</code>. Maven-friendly.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="4" y1="15" x2="20" y2="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="3" x2="8" y2="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="16" y1="3" x2="14" y2="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap7_t">26 Slash Commands</h3><p data-i18n="cap7_d"><code>/doctor</code>, <code>/compact</code>, <code>/review</code>, <code>/memory</code>, <code>/test</code>, <code>/init</code>, and more.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 data-i18n="cap8_t">Observability</h3><p data-i18n="cap8_d">CostTracker, ObservationPipeline, metrics dashboard, token analytics, session recovery.</p></div>
+      <div class="cap-cell"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8v5a3 3 0 0 0 3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><h3 data-i18n="cap9_t">Messaging Channels</h3><p data-i18n="cap9_d">WeChat integration built-in. Extensible to Feishu, DingTalk, and more.</p></div>
     </div>
   </div>
 </section>
 
-<!-- Quick Start -->
+<!-- ── Quick Start ── -->
 <section id="start">
   <div class="container">
     <div class="start-wrap">
       <div class="start-left reveal">
         <span class="eyebrow"><span class="dot"></span> <span data-i18n="start_eyebrow">Quick start</span></span>
-        <h2 data-i18n="start_title">From <span class="grad-text">npm install</span> to first AI session in 30 seconds.</h2>
-        <p data-i18n="start_p">No accounts, no cloud signup, no credit card. Install one package, run one command, point your browser at localhost.</p>
+        <h2 data-i18n="start_title">From install to <span style="color:var(--color-accent)">first AI session</span> in 2 minutes.</h2>
+        <p data-i18n="start_p">No accounts, no cloud signup, no credit card. Build from source or use the one-liner.</p>
         <div class="start-features">
           <div class="start-feat"><div class="check"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg></div><span data-i18n="start_f1">Cross-platform: macOS, Windows, Linux</span></div>
           <div class="start-feat"><div class="check"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg></div><span data-i18n="start_f2">Zero config, sensible defaults, full overrides</span></div>
+          <div class="start-feat"><div class="check"><svg width="14" height="14" viewBox="0 0 24 24"><use href="#check"/></svg></div><span data-i18n="start_f3">Self-hosted, your data stays on your machine</span></div>
         </div>
       </div>
       <div class="reveal">
-        <div class="start-steps">
-          <div class="start-step"><div class="num">1</div><div class="step-content"><h4 data-i18n="step1_t">Install</h4><p data-i18n="step1_h">Requires Node.js 18+ and Java 17+.</p></div></div>
-          <div class="start-step"><div class="num">2</div><div class="step-content"><h4 data-i18n="step2_t">Launch</h4><p data-i18n="step2_h">Starts backend + TUI. First run prompts for API key (or picks up existing env vars).</p></div></div>
-          <div class="start-step"><div class="num">3</div><div class="step-content"><h4 data-i18n="step3_t">Open Web UI</h4><p data-i18n="step3_h">React SPA loads at localhost. No separate install.</p></div></div>
-          <div class="start-step"><div class="num">4</div><div class="step-content"><h4 data-i18n="step4_t">Start shipping</h4><p data-i18n="step4_h">Type /commands, use @ for files, or just talk. JWCode plans, asks, and applies.</p></div></div>
+        <div class="steps">
+          <div class="step-card"><div class="num">1</div><div class="step-content"><h4 data-i18n="step1_t">Install Java 17+ &amp; Node 18+</h4><p data-i18n="step1_d">JWCode requires Java 17+ for the backend and Node.js 18+ for the frontend.</p></div></div>
+          <div class="step-card"><div class="num">2</div><div class="step-content"><h4 data-i18n="step2_t">Build &amp; Launch</h4><p data-i18n="step2_d"><code>mvn install -pl jwcode-core,jwcode-web -am -DskipTests</code> then <code>mvn exec:java -pl jwcode-web</code>.</p></div></div>
+          <div class="step-card"><div class="num">3</div><div class="step-content"><h4 data-i18n="step3_t">Open Web UI</h4><p data-i18n="step3_d">React SPA loads at <code>localhost:8080</code>. Point it at your repo and start shipping.</p></div></div>
+          <div class="step-card"><div class="num">4</div><div class="step-content"><h4 data-i18n="step4_t">Terminal TUI (optional)</h4><p data-i18n="step4_d"><code>cd ts-cli && npm run go</code> for the Ink/React terminal interface.</p></div></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Performance strip -->
+<!-- ── Performance ── -->
 <section id="perf">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="perf_eyebrow">By the numbers</span></span>
-      <h2 data-i18n="perf_title">Engineered for <span class="grad-text">real workloads</span>.</h2>
-      <p data-i18n="perf_sub">Local-first performance. Numbers from internal benchmarks on a mid-range laptop.</p>
+      <h2 data-i18n="perf_title">Engineered for <span style="color:var(--color-accent)">real workloads</span>.</h2>
+      <p data-i18n="perf_sub">Local-first performance. Built for enterprise Java environments.</p>
     </div>
     <div class="perf-grid reveal">
-      <div class="perf-card"><div class="num">100<span class="unit">ms</span></div><div class="label" data-i18n="perf1_l">First-token latency, p50</div></div>
-      <div class="perf-card"><div class="num">47<span class="unit">+</span></div><div class="label" data-i18n="perf2_l">Built-in tools, plugin-extensible</div></div>
-      <div class="perf-card"><div class="num">15<span class="unit">+</span></div><div class="label" data-i18n="perf3_l">Model providers, one config</div></div>
-      <div class="perf-card"><div class="num">7<span class="unit">-layer</span></div><div class="label" data-i18n="perf4_l">Permission classifier</div></div>
-      <div class="perf-card"><div class="num">80<span class="unit">%</span></div><div class="label" data-i18n="perf5_l">Cost saved via ModelRouter</div></div>
+      <div class="perf-card"><div class="num">15<span class="unit">+</span></div><div class="label" data-i18n="perf1_l">Model providers, one config</div></div>
+      <div class="perf-card"><div class="num">50<span class="unit">+</span></div><div class="label" data-i18n="perf2_l">Built-in tools, plugin-extensible</div></div>
+      <div class="perf-card"><div class="num">7<span class="unit">-layer</span></div><div class="label" data-i18n="perf4_l">Permission classifier for safety</div></div>
+      <div class="perf-card"><div class="num">26</div><div class="label" data-i18n="perf5_l">Slash commands at your fingertips</div></div>
       <div class="perf-card"><div class="num">∞</div><div class="label" data-i18n="perf6_l">Session checkpoint recovery</div></div>
     </div>
   </div>
 </section>
 
-<!-- Roadmap -->
+<!-- ── Roadmap ── -->
 <section id="roadmap">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="rm_eyebrow">Roadmap</span></span>
-      <h2 data-i18n="rm_title">Where JWCode is <span class="grad-text">heading next</span>.</h2>
+      <h2 data-i18n="rm_title">Where JWCode is <span style="color:var(--color-accent)">heading next</span>.</h2>
       <p data-i18n="rm_sub">A living plan. Open issues welcome.</p>
     </div>
-    <div class="roadmap-grid reveal">
+    <div class="rm-grid reveal">
       <div class="rm-card"><div class="phase" data-i18n="rm1_phase">Now</div><h3 data-i18n="rm1_t">IDE-native plugins</h3><p data-i18n="rm1_d">VS Code and JetBrains plugins. Same engine, in-editor.</p></div>
-      <div class="rm-card"><div class="phase" data-i18n="rm2_phase">Next</div><h3 data-i18n="rm2_t">Team workspace</h3><p data-i18n="rm2_d">Shared sessions, project memory, code-review surface.</p></div>
-      <div class="rm-card"><div class="phase" data-i18n="rm3_phase">Future</div><h3 data-i18n="rm3_t">Long-horizon planning</h3><p data-i18n="rm3_d">Multi-day tasks, persistent planning across sessions.</p></div>
-      <div class="rm-card"><div class="phase" data-i18n="rm4_phase">Future</div><h3 data-i18n="rm4_t">Performance GA</h3><p data-i18n="rm4_d">ModelRouter, prompt cache, AutoDream, CostTracker.</p></div>
+      <div class="rm-card"><div class="phase" data-i18n="rm2_phase">Next</div><h3 data-i18n="rm2_t">JWCode Cloud</h3><p data-i18n="rm2_d">Managed hosting for teams. Zero-infrastructure setup.</p></div>
+      <div class="rm-card"><div class="phase" data-i18n="rm3_phase">Future</div><h3 data-i18n="rm3_t">Enterprise Edition</h3><p data-i18n="rm3_d">SSO, RBAC, audit logs. Built for regulated environments.</p></div>
+      <div class="rm-card"><div class="phase" data-i18n="rm4_phase">Future</div><h3 data-i18n="rm4_t">Long-horizon planning</h3><p data-i18n="rm4_d">Multi-day tasks, persistent planning across sessions.</p></div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta">
+<!-- ── CTA ── -->
+<section class="cta-section">
   <div class="container">
-    <div class="cta-grid">
-      <div class="cta-left reveal">
-        <span class="eyebrow"><span class="dot"></span> <span data-i18n="cta_eyebrow">Get started</span></span>
-        <h2 data-i18n="cta_title">Stop chatting with AI. <span class="grad-text">Start shipping code</span>.</h2>
-        <p data-i18n="cta_p">Install JWCode, point it at a repo, and watch it actually read the code before it touches a line.</p>
-        <div class="cta-btns">
-          <a href="#install" class="btn btn-primary" data-i18n="cta_install">Install JWCode</a>
-          <a href="https://github.com" target="_blank" class="btn btn-ghost" data-i18n="cta_star">Star on GitHub</a>
-        </div>
-      </div>
-      <div class="reveal">
-        <div class="news-card">
-          <h4 data-i18n="cta_news_h">Release notes and deep-dives, once a month. No spam.</h4>
-          <form class="news-form" onsubmit="subscribe(this);return false"><input type="email" placeholder="you@example.com" required><button class="btn btn-grad" type="submit" data-i18n="cta_news_btn">Subscribe</button></form>
-        </div>
-      </div>
+    <h2 class="reveal" data-i18n="cta_title">Start shipping. <span style="color:var(--color-accent)">Not just chatting</span>.</h2>
+    <p class="reveal" data-i18n="cta_p">Install JWCode, point it at a repo, and watch it actually read the code before it touches a line.</p>
+    <div class="cta-btns reveal">
+      <a href="#install" class="btn btn--primary" data-i18n="cta_install">Install JWCode</a>
+      <a href="https://github.com" target="_blank" class="btn btn--ghost" data-i18n="cta_github">
+        <svg width="16" height="16" viewBox="0 0 24 24"><use href="#gh"/></svg> GitHub
+      </a>
     </div>
   </div>
 </section>
 
-<!-- Footer -->
-<footer>
-  <div class="container">
-    <div class="ft-grid">
-      <div class="ft-brand">
-        <div class="brand"><div class="brand-mark"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>JWCode</div>
-        <p data-i18n="ft_desc">The AI coding engine for Java. Open source. Built for engineers.</p>
-      </div>
-      <div class="ft-col"><h4 data-i18n="ft_p_t">Product</h4><a href="#usecases" data-i18n="ft_p_1">Use Cases</a><a href="#interfaces" data-i18n="ft_p_2">CLI &amp; Web</a><a href="#capabilities" data-i18n="ft_p_3">Capabilities</a><a href="#install" data-i18n="ft_p_4">Install</a></div>
-      <div class="ft-col"><h4 data-i18n="ft_d_t">Developers</h4><a href="https://github.com" target="_blank" data-i18n="ft_d_1">GitHub</a><a href="#" data-i18n="ft_d_2">Releases</a><a href="#install" data-i18n="ft_d_4">Installation</a></div>
-      <div class="ft-col"><h4 data-i18n="ft_c_t">Community</h4><a href="https://github.com" target="_blank" data-i18n="ft_c_1">Issues</a><a href="https://github.com" target="_blank" data-i18n="ft_c_2">Discussions</a><a href="https://github.com" target="_blank" data-i18n="ft_c_3">Contributing</a><a href="#" data-i18n="ft_c_4">License</a></div>
-    </div>
-    <div class="ft-bottom">
-      <span data-i18n="footer_license">All Rights Reserved</span>
-      <div class="ft-socials"><a href="https://github.com" target="_blank" aria-label="GitHub"><svg width="20" height="20" viewBox="0 0 24 24"><use href="#gh"/></svg></a></div>
-    </div>
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <span data-i18n="footer_copy">Copyright©2025 JWCode. Apache 2.0. Built for engineers.</span>
+    <span class="footer-sep">|</span>
+    <a class="footer-link" href="https://github.com" target="_blank" data-i18n="footer_github">GitHub</a>
+    <span class="footer-sep">|</span>
+    <a class="footer-link" href="#" data-i18n="footer_license">Apache 2.0 License</a>
   </div>
 </footer>
 
 <script>
 const i18n={
 "en":{
-  "nav_uc":"Use Cases","nav_products":"Interfaces","nav_how":"How it works","nav_roadmap":"Roadmap","nav_github":"GitHub","nav_install":"Get Started",
-  "hero_eyebrow":"v1.0 · Java AI Coding Engine",
-  "hero_title":"Ship Java faster with an AI that <span class=\"grad-text accent\">actually reads your repo</span>.",
-  "hero_sub":"JWCode is one AI engine for the terminal, the browser, and your IDE. It plans, it explains, it asks before it writes — so you stay in control of every change.",
+  "nav_uc":"Use Cases","nav_install_nav":"Install","nav_arch":"Architecture","nav_roadmap":"Roadmap",
+  "dy_welcome":"Join our Douyin fan group for latest news & support",
+  "dy_hint":"Scan to join",
+  "hero_eyebrow":"v1.0 · Java-Native AI Coding Agent",
+  "hero_title":"Ship Java faster with an AI that <span class=\"grad-text\">reads your repo</span>.",
+  "hero_sub":"JWCode is a fully open-source AI coding engine for Java. Self-hosted, multi-LLM, dual interface — one engine for your terminal and browser.",
+  "badge_oss":"Apache 2.0 · Open Source","badge_models":"15+ Model Providers","badge_tools":"50+ Built-in Tools",
   "hero_install":"Install JWCode","hero_explore":"See what it can do →",
-  "trust_models":"Works with 15+ model providers","trust_node":"Node 18+ · Java 17+",
-  "proof_label":"Bring your own stack — works with the models and runtimes you already use",
-  "stat_models":"model providers","stat_tools":"built-in tools","stat_agents":"agent types","stat_lat":"first-token p50",
+  "term_cmd":"Refactor AuthService to use strategy pattern",
+  "term_plan":"Mapped call graph. 4 files, 2 strategies proposed.",
+  "term_approve":"Apply 3 edits &amp; create AuthStrategy.java?",
+  "term_done":"Tests green. +84 / -22, 2 new files.",
+  "proof_label":"Trusted by teams that ship with AI",
+  "stat_models":"Model Providers","stat_tools":"Built-in Tools","stat_security":"Security Layers",
   "uc_eyebrow":"What you can do today",
-  "uc_title":"From <span class=\"grad-text\">understanding legacy code</span> to <span class=\"grad-text-2\">shipping the patch</span> — in one session.",
-  "uc_sub":"Same engine, same engine-trace, same approval log. CLI for the keyboard crowd, Web UI for the rest.",
-  "uc1_tag":"Decode","uc1_t":"Read a repo you didn't write","uc1_d":"Index code, trace call graphs, and get a plain-English walkthrough of any module in minutes — not days.",
-  "uc2_tag":"Refactor","uc2_t":"Multi-file refactors with a paper trail","uc2_d":"Dependency upgrades, framework migrations, naming sweeps. Approve per-step, roll back in one command.",
-  "uc3_tag":"Parallel","uc3_t":"Big jobs run on an agent swarm","uc3_d":"Decompose into a DAG. Workers run in parallel. Orchestrator merges results. You review the diff, not the noise.",
-  "uc4_tag":"Test","uc4_t":"Tests that match real behavior","uc4_d":"Reads the code first. Generates unit, integration, and edge-case tests aligned to the actual contract — not the doc.",
-  "uc5_tag":"Safety","uc5_t":"Plan, approve, then apply — every change","uc5_d":"AI proposes, you decide. Risk-classified permissions from CRITICAL to LOW. Docker sandbox, injection detection, 7-layer permission classifier. Revert any step in one command.",
-  "uc6_tag":"Team","uc6_t":"One engine, shared across the team","uc6_d":"Sessions, traces, and approval logs are portable. SharedMemory and SessionSharing services out of the box.",
-  "intro_eyebrow":"How JWCode works",
-  "intro_title":"One engine, four layers, <span class=\"grad-text\">fully traceable</span>.",
-  "intro_sub":"A Java engine, two surfaces, every model. Plan-then-approve by default — so AI proposes, you decide.",
-  "intro_p1":"JWCode is a Java AI coding engine that runs locally, talks to any major model, and exposes the same surface in your terminal, browser, and IDE.",
-  "intro_p2":"No context-switching. No copy-paste. No lost sessions. Every plan, every tool call, every approval — logged and replayable.",
-  "intro_s1":"Built-in tools & plugins","intro_s2":"Model providers","intro_s3":"Agent types","intro_s4":"Permission classifier",
-  "arch1_t":"CLI / TUI","arch1_d":"Ink/React TUI, command palette, session manager, @ file ref",
-  "arch2_t":"Web UI","arch2_d":"React SPA, Monaco, xterm.js, streaming chat, hook editor",
-  "arch3_t":"Engine","arch3_d":"Java, 47 tools, Agent Graph DAG, SQLite checkpoints",
-  "arch4_t":"Models","arch4_d":"OpenAI, Anthropic, Google, MiniMax, DeepSeek, Ollama",
-  "arch5_t":"Codebase","arch5_d":"Tree-sitter, MCP protocol, persistent memory",
-  "arch6_t":"Safety","arch6_d":"Docker sandbox, 7-layer ACL, lifecycle hooks",
-  "products_eyebrow":"Two interfaces",
-  "products_title":"Terminal keyboard or browser mouse. <span class=\"grad-text\">Same engine.</span>",
-  "products_sub":"Sessions, traces, and approval logs sync between CLI and Web. Switch mid-flow without losing context.",
-  "tab_cli":"CLI · TUI","tab_web":"Web UI",
-  "cli_feat1_t":"Interactive TUI","cli_feat1_d":"Full-screen terminal with command palette, session history, file picker, diff viewer, model picker.",
-  "cli_feat2_t":"Plan / Act / Wait modes","cli_feat2_d":"Plan first, act with tools, wait for approval. Tab to switch. The model never writes without your yes.",
-  "cli_feat3_t":"Session management","cli_feat3_d":"Multi-session with history picker (Ctrl+R). Each session has its own context, trace, and checkpoint recovery.",
-  "cli_feat4_t":"Approval workflow","cli_feat4_d":"All writes require explicit approval. CRITICAL / HIGH / MEDIUM / LOW risk classification, per action.",
-  "cli_feat5_t":"@ file reference","cli_feat5_d":"Type @ to fuzzy-search files. Attach file contents as context blocks automatically.",
-  "cli_feat6_t":"7 slash commands","cli_feat6_d":"/doctor, /cost, /compact, /review, /security-review, /memory, /tasks.",
-  "web_feat1_t":"Monaco code editor","web_feat1_d":"Full editor with syntax highlighting, multi-cursor, bracket matching, diff view.",
-  "web_feat2_t":"Dual terminal","web_feat2_d":"xterm.js with ttyd PTY sidecar. Real command execution inside the browser.",
-  "web_feat3_t":"Streaming AI chat","web_feat3_d":"Token-by-token streaming. Markdown, code blocks, KaTeX, @ file references.",
-  "web_feat4_t":"Activity & observability","web_feat4_d":"Real-time activity log, hook approvals, metrics dashboard, token analytics, cost tracking.",
-  "web_feat5_t":"Hook management UI","web_feat5_d":"Visual lifecycle hook editor. Configure rules, view logs, set risk levels.",
-  "web_feat6_t":"Settings & config","web_feat6_d":"Theme, workspace, model config, feature toggles, config file editor.",
+  "uc_title":"From <span style=\"color:var(--color-accent)\">reading legacy code</span> to <span style=\"color:var(--color-warm)\">shipping the patch</span>.",
+  "uc_sub":"Same engine, same trace, same approval log. Terminal or Web — your call.",
+  "uc1_tag":"Multi-LLM","uc1_t":"Choose from 15+ model providers","uc1_d":"DeepSeek, Claude, OpenAI, Google, MiniMax, Ollama. Key rotation, failover, rate-limit awareness. One config, any model.",
+  "uc2_tag":"Dual UI","uc2_t":"Terminal TUI + Web SPA","uc2_d":"Ink/React TUI with 26 slash commands, or React SPA with Monaco editor and xterm.js. Same engine, two surfaces.",
+  "uc3_tag":"Tools","uc3_t":"50+ built-in tools, plugin-extensible","uc3_d":"File read/write/edit, glob/grep search, bash/powershell, web fetch, git, Playwright, LSP, MCP — and a plugin API for more.",
+  "uc4_tag":"Safety","uc4_t":"Plan / Act / Goal permission modes","uc4_d":"Three isolation modes: Plan (read-only), Act (auto-approve), Goal (task-driven). Docker sandbox, 7-layer ACL, HookChain interceptor.",
+  "uc5_tag":"Plugin","uc5_t":"Extend via plugin API","uc5_d":"Custom agents and tools through jwcode-plugin-api. Maven-friendly, integrates with your existing Java toolchain.",
+  "uc6_tag":"Channels","uc6_t":"Multi-platform messaging","uc6_d":"WeChat integration built-in. Extensible architecture for Feishu, DingTalk, and more. Keep JWCode in your workflow.",
+  "install_eyebrow":"Installation",
+  "install_title":"One command. <span style=\"color:var(--color-accent)\">Any platform.</span>",
+  "install_sub":"macOS, Linux, Windows. No cloud signup, no credit card.",
+  "install_label":"Quick install","install_copy":"Copy",
+  "install_opt1_t":"npm global","install_opt1_d":"npm install -g @jwcode/cli — one command, ready to go.",
+  "install_opt2_t":"Build from source","install_opt2_d":"mvn install -pl jwcode-core,jwcode-web -am -DskipTests — Java 17+.",
+  "install_opt3_t":"Docker","install_opt3_d":"Pre-built JRE bundle. No toolchain required.",
+  "install_opt4_t":"Web UI dev","install_opt4_d":"cd jwcode-web && npm run dev — React SPA with Monaco + xterm.js.",
+  "arch_eyebrow":"How JWCode works",
+  "arch_title":"One engine, four layers, <span style=\"color:var(--color-accent)\">fully traceable</span>.",
+  "arch_sub":"A Java engine, two surfaces, every model. Plan-then-approve by default.",
+  "arch_p1":"JWCode is built as a modular Java 17 application with a React frontend and Ink-based terminal UI. Fully open-source (Apache 2.0).",
+  "arch_p2":"50+ built-in tools, multi-agent orchestration, Plan/Act/Goal permission system — all connected through a 4-layer security and observability stack.",
+  "arch_s1":"Built-in tools & plugins","arch_s2":"Model providers","arch_s4":"Security + observability",
+  "arch_node1_t":"CLI / TUI","arch_node1_d":"Ink/React TUI, 26 slash commands, session manager",
+  "arch_node2_t":"Web UI","arch_node2_d":"React SPA, Monaco editor, xterm.js, streaming chat",
+  "arch_node3_t":"Engine","arch_node3_d":"Java 17, 50+ tools, multi-agent orchestration, 3 permission modes",
+  "arch_node4_t":"Models","arch_node4_d":"DeepSeek, Claude, OpenAI, Google, MiniMax, Ollama",
+  "arch_node5_t":"Codebase","arch_node5_d":"Tree-sitter, MCP protocol, persistent memory",
+  "arch_node6_t":"Safety","arch_node6_d":"Docker sandbox, 7-layer ACL, HookChain interceptor",
   "cap_eyebrow":"Under the hood",
-  "cap_title":"Everything an AI coding tool <span class=\"grad-text\">should have shipped with</span>.",
-  "cap_sub":"A complete toolbox, ready on day one. Every primitive you'd build yourself.",
-  "cap1_t":"Multi-model AI","cap1_d":"OpenAI, Anthropic, Google, MiniMax, Ollama, DeepSeek. Key rotation, rate-limit awareness, graceful failover.",
-  "cap2_t":"47 built-in tools","cap2_d":"File ops, glob search, codebase indexing, bash, web search, MCP, static analysis. Plugin-extensible.",
-  "cap3_t":"Agent Graph DAG","cap3_d":"Declarative DAG engine. Channel state, BSP execution, SQLite checkpointing for pause and resume.",
-  "cap4_t":"Key rotation & pooling","cap4_d":"Multi-key pool, rotation, rate-limit awareness, graceful degradation.",
-  "cap5_t":"Streaming & real-time","cap5_d":"Token-by-token streaming. WebSocket transport, sub-100ms latency, partial rendering.",
-  "cap6_t":"Perception & planning","cap6_d":"Analyzes the codebase before acting. Architecture-aware planning, fully traceable.",
-  "cap7_t":"Safety & sandbox","cap7_d":"Docker sandbox, injection detection, 150+ read-only validators, 7-layer permission classifier.",
-  "cap8_t":"Slash commands & @ ref","cap8_d":"7 built-in slash commands. Type @ to fuzzy-search and attach any file as context.",
-  "cap9_t":"Observability & recovery","cap9_d":"Metrics dashboard, cost tracker, EMA-smoothed token rates. SQLite checkpoints, AutoDream service.",
+  "cap_title":"Everything a coding agent <span style=\"color:var(--color-accent)\">should ship with</span>.",
+  "cap_sub":"A complete toolbox, ready on day one.",
+  "cap1_t":"Multi-LLM","cap1_d":"DeepSeek, Claude, OpenAI, Google, MiniMax, Ollama. Key rotation, failover, rate-limit awareness.",
+  "cap3_t":"50+ Built-in Tools","cap3_d":"File ops, glob/grep, codebase indexing, bash, web search, MCP, Playwright, Git, LSP.",
+  "cap4_t":"Security & Sandbox","cap4_d":"Docker sandbox, injection detection, 7-layer permission classifier, HookChain.",
+  "cap5_t":"Plan / Act / Goal","cap5_d":"Three permission modes. Plan (read-only), Act (auto-approve), Goal (task-driven).",
+  "cap6_t":"Plugin API","cap6_d":"Extend with custom agents and tools via jwcode-plugin-api. Maven-friendly.",
+  "cap7_t":"26 Slash Commands","cap7_d":"/doctor, /compact, /review, /memory, /test, /init, and more.",
+  "cap8_t":"Observability","cap8_d":"CostTracker, ObservationPipeline, metrics dashboard, token analytics.",
+  "cap9_t":"Messaging Channels","cap9_d":"WeChat integration built-in. Extensible to Feishu, DingTalk.",
   "start_eyebrow":"Quick start",
-  "start_title":"From <span class=\"grad-text\">npm install</span> to first AI session in 30 seconds.",
-  "start_p":"No accounts, no cloud signup, no credit card. Install one package, run one command, point your browser at localhost.",
+  "start_title":"From install to <span style=\"color:var(--color-accent)\">first AI session</span> in 2 minutes.",
+  "start_p":"No accounts, no cloud signup, no credit card. Build from source or use the one-liner.",
   "start_f1":"Cross-platform: macOS, Windows, Linux",
   "start_f2":"Zero config, sensible defaults, full overrides",
-  "step1_t":"Install","step1_h":"Requires Node.js 18+ and Java 17+.",
-  "step2_t":"Launch","step2_h":"Starts backend + TUI. First run prompts for API key (or picks up existing env vars).",
-  "step3_t":"Open Web UI","step3_h":"React SPA loads at localhost. No separate install.",
-  "step4_t":"Start shipping","step4_h":"Type /commands, use @ for files, or just talk. JWCode plans, asks, and applies.",
-  "install_eyebrow":"Installation",
-  "install_title":"One command. <span class=\"grad-text\">Any platform.</span>",
-  "install_sub":"npm is the default. Pick the path that fits your setup.",
-  "install_label":"npm","install_copy":"Copy",
-  "install_opt1_t":"npx one-liner","install_opt1_d":"npx jwcode start — no global install needed.",
-  "install_opt2_t":"Platform bundle","install_opt2_d":"Pre-built JRE bundle. No toolchain required.",
-  "install_opt3_t":"Docker","install_opt3_d":"docker pull jwcode/jwcode",
+  "start_f3":"Self-hosted, your data stays on your machine",
+  "step1_t":"Install Java 17+ & Node 18+","step1_d":"JWCode requires Java 17+ for the backend and Node.js 18+ for the frontend.",
+  "step2_t":"Build & Launch","step2_d":"mvn install -pl jwcode-core,jwcode-web -am -DskipTests then mvn exec:java -pl jwcode-web.",
+  "step3_t":"Open Web UI","step3_d":"React SPA loads at localhost:8080. Point it at your repo and start shipping.",
+  "step4_t":"Terminal TUI (optional)","step4_d":"cd ts-cli && npm run go for the Ink/React terminal interface.",
   "perf_eyebrow":"By the numbers",
-  "perf_title":"Engineered for <span class=\"grad-text\">real workloads</span>.",
-  "perf_sub":"Local-first performance. Numbers from internal benchmarks on a mid-range laptop.",
-  "perf1_l":"First-token latency, p50","perf2_l":"Built-in tools, plugin-extensible","perf3_l":"Model providers, one config","perf4_l":"Permission classifier for safety","perf5_l":"Cost saved via ModelRouter","perf6_l":"Session checkpoint recovery",
+  "perf_title":"Engineered for <span style=\"color:var(--color-accent)\">real workloads</span>.",
+  "perf_sub":"Local-first performance. Built for enterprise Java environments.",
+  "perf1_l":"Model providers, one config","perf2_l":"Built-in tools, plugin-extensible",
+  "perf4_l":"Permission classifier for safety",
+  "perf5_l":"Slash commands at your fingertips","perf6_l":"Session checkpoint recovery",
   "rm_eyebrow":"Roadmap",
-  "rm_title":"Where JWCode is <span class=\"grad-text\">heading next</span>.",
+  "rm_title":"Where JWCode is <span style=\"color:var(--color-accent)\">heading next</span>.",
   "rm_sub":"A living plan. Open issues welcome.",
   "rm1_phase":"Now","rm1_t":"IDE-native plugins","rm1_d":"VS Code and JetBrains plugins. Same engine, in-editor.",
-  "rm2_phase":"Next","rm2_t":"Team workspace","rm2_d":"Shared sessions, project memory, code-review surface.",
-  "rm3_phase":"Future","rm3_t":"Long-horizon planning","rm3_d":"Multi-day tasks, persistent planning across sessions.",
-  "rm4_phase":"Future","rm4_t":"Performance GA","rm4_d":"ModelRouter, prompt cache, AutoDream, CostTracker.",
-  "cta_eyebrow":"Get started",
-  "cta_title":"Stop chatting with AI. <span class=\"grad-text\">Start shipping code</span>.",
+  "rm2_phase":"Next","rm2_t":"JWCode Cloud","rm2_d":"Managed hosting for teams. Zero-infrastructure setup.",
+  "rm3_phase":"Future","rm3_t":"Enterprise Edition","rm3_d":"SSO, RBAC, audit logs. Built for regulated environments.",
+  "rm4_phase":"Future","rm4_t":"Long-horizon planning","rm4_d":"Multi-day tasks, persistent planning across sessions.",
+  "cta_title":"Start shipping. <span style=\"color:var(--color-accent)\">Not just chatting</span>.",
   "cta_p":"Install JWCode, point it at a repo, and watch it actually read the code before it touches a line.",
-  "cta_install":"Install JWCode","cta_star":"Star on GitHub",
-  "cta_news_h":"Release notes and deep-dives, once a month. No spam.","cta_news_btn":"Subscribe",
-  "ft_desc":"The AI coding engine for Java. Built for engineers.",
-  "ft_p_t":"Product","ft_p_1":"Use Cases","ft_p_2":"CLI & Web","ft_p_3":"Capabilities","ft_p_4":"Install",
-  "ft_d_t":"Developers","ft_d_1":"GitHub","ft_d_2":"Releases","ft_d_4":"Installation",
-  "ft_c_t":"Community","ft_c_1":"Issues","ft_c_2":"Discussions","ft_c_3":"Contributing","ft_c_4":"License",
-  "footer_license":"All Rights Reserved"
+  "cta_install":"Install JWCode","cta_github":"GitHub",
+  "footer_copy":"Copyright©2025 JWCode. Apache 2.0. Built for engineers.",
+  "footer_github":"GitHub","footer_license":"Apache 2.0 License"
 },
 "zh":{
-  "nav_uc":"场景","nav_products":"双端","nav_how":"原理","nav_roadmap":"路线图","nav_github":"GitHub","nav_install":"立即开始",
-  "hero_eyebrow":"v1.0 · Java AI 编程引擎",
-  "hero_title":"用真正<span class=\"grad-text accent\">读懂你仓库</span>的 AI 交付代码。",
-  "hero_sub":"JWCode 是一台为终端、浏览器和 IDE 服务的 AI 引擎。它先规划、再解释、写入前一定问你。",
+  "nav_uc":"场景","nav_install_nav":"安装","nav_arch":"架构","nav_roadmap":"路线图",
+  "dy_welcome":"加入抖音粉丝群，获取最新资讯与技术支持",
+  "dy_hint":"扫码进群交流",
+  "hero_eyebrow":"v1.0 · Java 原生 AI 编程引擎",
+  "hero_title":"用真正<span class=\"grad-text\">读懂你仓库</span>的 AI 来交付 Java 代码。",
+  "hero_sub":"JWCode 是面向 Java 的完全开源 AI 编程引擎。自托管、多 LLM、双界面——终端和浏览器共用同一台引擎。",
+  "badge_oss":"Apache 2.0 · 开源","badge_models":"15+ 模型供应商","badge_tools":"50+ 内置工具",
   "hero_install":"安装 JWCode","hero_explore":"看它能做什么 →",
-  "trust_models":"兼容 15+ 模型供应商","trust_node":"Node 18+ · Java 17+",
-  "proof_label":"自带技术栈 — 兼容你已经在用的模型与运行时",
-  "stat_models":"模型供应商","stat_tools":"内置工具","stat_agents":"Agent 类型","stat_lat":"首 token 延迟 p50",
+  "term_cmd":"用策略模式重构 AuthService",
+  "term_plan":"已分析调用图，涉及 4 个文件，建议 2 种策略。",
+  "term_approve":"是否应用 3 处修改并创建 AuthStrategy.java？",
+  "term_done":"测试通过。+84 / -22 行，新增 2 个文件。",
+  "proof_label":"受到使用 AI 交付的团队的信赖",
+  "stat_models":"模型供应商","stat_tools":"内置工具","stat_security":"安全层级",
   "uc_eyebrow":"现在能做什么",
-  "uc_title":"从 <span class=\"grad-text\">读懂遗留代码</span> 到 <span class=\"grad-text-2\">交付补丁</span>，一个会话搞定。",
-  "uc_sub":"同一台引擎、同一份轨迹、同一份审批日志。键盘党用 CLI，其他人用 Web。",
-  "uc1_tag":"读懂","uc1_t":"读一份不是你写的仓库","uc1_d":"索引代码、追踪调用图，几分钟拿到任意模块的白话讲解。",
-  "uc2_tag":"重构","uc2_t":"多文件重构自带审计轨迹","uc2_d":"依赖升级、框架迁移、命名清理。逐项审批，一条命令回滚。",
-  "uc3_tag":"并行","uc3_t":"大活交给 Agent Swarm","uc3_d":"拆成 DAG，Worker 并行执行，编排器合并结果。",
-  "uc4_tag":"测试","uc4_t":"对齐真实行为的测试","uc4_d":"先读代码再写测试。贴着真实契约走。",
-  "uc5_tag":"安全","uc5_t":"先规划、再审批、后应用","uc5_d":"AI 提案，你来拍板。操作级 CRITICAL/HIGH/MEDIUM/LOW 风险分级。Docker 沙箱、注入检测、7 层权限分类器。一键回滚任意步骤。",
-  "uc6_tag":"团队","uc6_t":"一台引擎，全队共享","uc6_d":"会话、轨迹、审批记录可移植。SharedMemory 和 SessionSharing 服务。",
-  "intro_eyebrow":"JWCode 的工作方式",
-  "intro_title":"一台引擎，四层结构，<span class=\"grad-text\">全程可追溯</span>。",
-  "intro_sub":"Java 引擎、两个界面、所有模型。先规划后审批，让 AI 来提案，你来拍板。",
-  "intro_p1":"JWCode 是一个 Java AI 编程引擎，本机运行，对接所有主流模型，在终端、浏览器和 IDE 中提供一致的体验。",
-  "intro_p2":"不再切换上下文、不再复制粘贴、不再丢失会话。每一步规划、每个工具调用、每次审批——全部记录在案，可追溯可回放。",
-  "intro_s1":"内置工具与插件","intro_s2":"模型供应商","intro_s3":"Agent 类型","intro_s4":"权限分类器",
-  "arch1_t":"CLI / TUI","arch1_d":"Ink/React TUI、命令面板、会话管理、@ 文件引用",
-  "arch2_t":"Web UI","arch2_d":"React SPA、Monaco、xterm.js、流式对话、Hook 编辑器",
-  "arch3_t":"引擎","arch3_d":"Java、47 工具、Agent Graph DAG、SQLite 检查点",
-  "arch4_t":"模型","arch4_d":"OpenAI、Anthropic、Google、MiniMax、DeepSeek、Ollama",
-  "arch5_t":"代码库","arch5_d":"Tree-sitter、MCP 协议、持久化记忆",
-  "arch6_t":"安全","arch6_d":"Docker 沙箱、7 层 ACL、生命周期 Hook",
-  "products_eyebrow":"两种界面",
-  "products_title":"终端键盘或浏览器鼠标，<span class=\"grad-text\">同一台引擎</span>。",
-  "products_sub":"会话、轨迹、审批日志在 CLI 与 Web 之间同步。",
-  "tab_cli":"CLI · TUI","tab_web":"Web UI",
-  "cli_feat1_t":"交互式 TUI","cli_feat1_d":"全屏终端界面、命令面板、会话历史、文件选择、Diff、模型切换。",
-  "cli_feat2_t":"Plan / Act / Wait 模式","cli_feat2_d":"先规划、再执行、后审批。Tab 切换。模型写入前一定问你。",
-  "cli_feat3_t":"会话管理","cli_feat3_d":"多会话 + Ctrl+R 历史选择器。各会话独立上下文与检查点恢复。",
-  "cli_feat4_t":"审批流","cli_feat4_d":"所有写入需显式审批。CRITICAL/HIGH/MEDIUM/LOW 风险分级。",
-  "cli_feat5_t":"@ 文件引用","cli_feat5_d":"输入 @ 模糊搜索文件，自动附加为上下文。",
-  "cli_feat6_t":"7 个斜杠命令","cli_feat6_d":"/doctor, /cost, /compact, /review, /security-review, /memory, /tasks。",
-  "web_feat1_t":"Monaco 代码编辑器","web_feat1_d":"语法高亮、多光标、括号匹配、Diff 视图。",
-  "web_feat2_t":"双终端","web_feat2_d":"xterm.js + ttyd PTY。浏览器内真实命令执行。",
-  "web_feat3_t":"流式 AI 对话","web_feat3_d":"逐 token 流式输出。Markdown、代码块、KaTeX、@ 引用。",
-  "web_feat4_t":"活动与可观测性","web_feat4_d":"实时活动日志、Hook 审批、指标仪表盘、Token 分析、成本追踪。",
-  "web_feat5_t":"Hook 管理界面","web_feat5_d":"可视化生命周期 Hook 编辑器。",
-  "web_feat6_t":"设置与配置","web_feat6_d":"主题、工作区、模型配置、功能开关、配置文件编辑器。",
+  "uc_title":"从 <span style=\"color:var(--color-accent)\">读懂遗留代码</span> 到 <span style=\"color:var(--color-warm)\">交付补丁</span>。",
+  "uc_sub":"同一台引擎、同一份轨迹、同一份审批日志。终端或 Web，你来选。",
+  "uc1_tag":"多模型","uc1_t":"支持 15+ 模型供应商","uc1_d":"DeepSeek、Claude、OpenAI、Google、MiniMax、Ollama。Key 轮换、故障转移、限流感知。一份配置，任意模型。",
+  "uc2_tag":"双界面","uc2_t":"终端 TUI + Web SPA","uc2_d":"Ink/React TUI 含 26 个斜杠命令，或 React SPA（Monaco + xterm.js）。同一台引擎，两种界面。",
+  "uc3_tag":"工具","uc3_t":"50+ 内置工具，支持插件扩展","uc3_d":"文件读写编辑、glob/grep 搜索、bash/powershell、web fetch、git、Playwright、LSP、MCP——以及插件 API。",
+  "uc4_tag":"安全","uc4_t":"Plan / Act / Goal 三种权限模式","uc4_d":"三种隔离模式：Plan（只读）、Act（自动批准）、Goal（任务驱动）。Docker 沙箱、7 层 ACL、HookChain 拦截器。",
+  "uc5_tag":"插件","uc5_t":"通过插件 API 扩展","uc5_d":"通过 jwcode-plugin-api 自定义 Agent 和工具。Maven 友好，与你现有的 Java 工具链集成。",
+  "uc6_tag":"通道","uc6_t":"多平台消息接入","uc6_d":"内置微信集成。可扩展至飞书、钉钉等。将 JWCode 融入你的工作流。",
+  "install_eyebrow":"安装",
+  "install_title":"一条命令，<span style=\"color:var(--color-accent)\">全平台</span>。",
+  "install_sub":"macOS、Linux、Windows。不要账号、不要云注册、不要信用卡。",
+  "install_label":"快速安装","install_copy":"复制",
+  "install_opt1_t":"npm 全局安装","install_opt1_d":"npm install -g @jwcode/cli — 一条命令，即刻使用。",
+  "install_opt2_t":"源码构建","install_opt2_d":"mvn install -pl jwcode-core,jwcode-web -am -DskipTests，需要 Java 17+。",
+  "install_opt3_t":"Docker","install_opt3_d":"预构建 JRE 包。无需配置工具链。",
+  "install_opt4_t":"Web UI 开发","install_opt4_d":"cd jwcode-web && npm run dev，React SPA（Monaco + xterm.js）。",
+  "arch_eyebrow":"JWCode 的工作方式",
+  "arch_title":"一台引擎，四层结构，<span style=\"color:var(--color-accent)\">全程可追溯</span>。",
+  "arch_sub":"Java 引擎、两个界面、所有模型。默认先规划后审批。",
+  "arch_p1":"JWCode 是基于 Java 17 的模块化应用，前端采用 React，终端 UI 采用 Ink。完全开源（Apache 2.0）。",
+  "arch_p2":"50+ 内置工具、多 Agent 编排、Plan/Act/Goal 权限系统——全部通过 4 层安全和可观测性栈串联。",
+  "arch_s1":"内置工具与插件","arch_s2":"模型供应商","arch_s4":"安全 + 可观测性",
+  "arch_node1_t":"CLI / TUI","arch_node1_d":"Ink/React TUI、26 个斜杠命令、会话管理",
+  "arch_node2_t":"Web UI","arch_node2_d":"React SPA、Monaco 编辑器、xterm.js、流式对话",
+  "arch_node3_t":"引擎","arch_node3_d":"Java 17、50+ 工具、多 Agent 编排、3 种权限模式",
+  "arch_node4_t":"模型","arch_node4_d":"DeepSeek、Claude、OpenAI、Google、MiniMax、Ollama",
+  "arch_node5_t":"代码库","arch_node5_d":"Tree-sitter、MCP 协议、持久化记忆",
+  "arch_node6_t":"安全","arch_node6_d":"Docker 沙箱、7 层 ACL、HookChain 拦截器",
   "cap_eyebrow":"底层能力",
-  "cap_title":"一款 AI 编程工具 <span class=\"grad-text\">本该自带</span> 的全部。",
+  "cap_title":"一款编程 Agent <span style=\"color:var(--color-accent)\">本该自带</span> 的全部。",
   "cap_sub":"第一天就齐的工具箱。",
-  "cap1_t":"多模型 AI","cap1_d":"OpenAI、Anthropic、Google、MiniMax、Ollama、DeepSeek。",
-  "cap2_t":"47 个内置工具","cap2_d":"文件操作、glob 搜索、代码库索引、bash、MCP、静态分析。",
-  "cap3_t":"Agent Graph DAG","cap3_d":"声明式 DAG 引擎。通道状态、BSP 执行、SQLite 检查点。",
-  "cap4_t":"Key 轮换与池化","cap4_d":"多 Key 池、自动轮换、限流感知、优雅降级。",
-  "cap5_t":"流式与实时","cap5_d":"逐 token 流式输出。WebSocket 传输，延迟 < 100ms。",
-  "cap6_t":"感知与规划","cap6_d":"行动前先分析代码库。架构感知规划，每步可追溯。",
-  "cap7_t":"安全与沙箱","cap7_d":"Docker 沙箱、命令注入检测、150+ 只读验证器、7 层权限分类器。",
-  "cap8_t":"斜杠命令与 @ 引用","cap8_d":"7 个内置斜杠命令。输入 @ 搜索附加任意文件。",
-  "cap9_t":"可观测性与恢复","cap9_d":"指标仪表盘、成本追踪、EMA 平滑 Token 速率。",
+  "cap1_t":"多 LLM","cap1_d":"DeepSeek、Claude、OpenAI、Google、MiniMax、Ollama。Key 轮换、故障转移、限流感知。",
+  "cap3_t":"50+ 内置工具","cap3_d":"文件操作、glob/grep、代码库索引、bash、Web 搜索、MCP、Playwright、Git、LSP。",
+  "cap4_t":"安全与沙箱","cap4_d":"Docker 沙箱、注入检测、7 层权限分类器、HookChain。",
+  "cap5_t":"Plan / Act / Goal","cap5_d":"三种权限模式：Plan（只读）、Act（自动批准）、Goal（任务驱动）。",
+  "cap6_t":"插件 API","cap6_d":"通过 jwcode-plugin-api 扩展自定义 Agent 和工具。Maven 友好。",
+  "cap7_t":"26 个斜杠命令","cap7_d":"/doctor、/compact、/review、/memory、/test、/init 等等。",
+  "cap8_t":"可观测性","cap8_d":"CostTracker、ObservationPipeline、指标仪表盘、Token 分析。",
+  "cap9_t":"消息通道","cap9_d":"内置微信集成。可扩展至飞书、钉钉。",
   "start_eyebrow":"快速开始",
-  "start_title":"从 <span class=\"grad-text\">npm install</span> 到首次 AI 会话，30 秒。",
-  "start_p":"不要账号、不要云注册、不要信用卡。",
+  "start_title":"从安装到 <span style=\"color:var(--color-accent)\">首次 AI 会话</span>，只需 2 分钟。",
+  "start_p":"不要账号、不要云注册、不要信用卡。源码构建或一行命令。",
   "start_f1":"全平台：macOS、Windows、Linux",
   "start_f2":"零配置、合理默认、全部可覆盖",
-  "step1_t":"安装","step1_h":"需要 Node.js 18+ 与 Java 17+。",
-  "step2_t":"启动","step2_h":"启动后端 + TUI。首次运行提示输入 API Key。",
-  "step3_t":"打开 Web UI","step3_h":"React SPA 自动加载。",
-  "step4_t":"开始交付","step4_h":"/ 命令、@ 文件、自然语言都行。JWCode 先规划再请你审批。",
-  "install_eyebrow":"安装",
-  "install_title":"一条命令，<span class=\"grad-text\">全平台</span>。",
-  "install_sub":"npm 是默认推荐，按你的环境选。",
-  "install_label":"npm","install_copy":"复制",
-  "install_opt1_t":"npx 一行命令","install_opt1_d":"npx jwcode start。无需全局安装。",
-  "install_opt2_t":"平台 JRE 包","install_opt2_d":"预构建 JRE 包。无需工具链。",
-  "install_opt3_t":"Docker","install_opt3_d":"docker pull jwcode/jwcode",
+  "start_f3":"自托管，数据保留在你的机器上",
+  "step1_t":"安装 Java 17+ 和 Node 18+","step1_d":"JWCode 需要 Java 17+ 运行后端，Node.js 18+ 构建前端。",
+  "step2_t":"构建并启动","step2_d":"mvn install -pl jwcode-core,jwcode-web -am -DskipTests 然后 mvn exec:java -pl jwcode-web。",
+  "step3_t":"打开 Web UI","step3_d":"React SPA 在 localhost:8080 加载。指向你的仓库并开始交付。",
+  "step4_t":"终端 TUI（可选）","step4_d":"cd ts-cli && npm run go 启动 Ink/React 终端界面。",
   "perf_eyebrow":"数据说话",
-  "perf_title":"为 <span class=\"grad-text\">真实工作负载</span> 而生。",
-  "perf_sub":"本地优先的性能。",
-  "perf1_l":"首 token 延迟 p50","perf2_l":"内置工具，全部可插件扩展","perf3_l":"模型供应商，一份配置","perf4_l":"7 层安全权限分类器","perf5_l":"ModelRouter 节省 80% 成本","perf6_l":"会话检查点恢复",
+  "perf_title":"为 <span style=\"color:var(--color-accent)\">真实工作负载</span> 而生。",
+  "perf_sub":"本地优先的性能。专为企业 Java 环境构建。",
+  "perf1_l":"模型供应商，一份配置","perf2_l":"内置工具，全部可插件扩展",
+  "perf4_l":"安全权限分类器",
+  "perf5_l":"随时可用的斜杠命令","perf6_l":"会话检查点恢复",
   "rm_eyebrow":"路线图",
-  "rm_title":"JWCode 接下来 <span class=\"grad-text\">去哪儿</span>。",
-  "rm_sub":"活的计划表。",
-  "rm1_phase":"当前","rm1_t":"IDE 原生插件","rm1_d":"VS Code 和 JetBrains 插件。",
-  "rm2_phase":"下一步","rm2_t":"团队工作区","rm2_d":"共享会话、项目记忆、Code Review 界面。",
-  "rm3_phase":"未来","rm3_t":"长周期规划","rm3_d":"跨天任务、跨会话规划。",
-  "rm4_phase":"未来","rm4_t":"性能与可观测 GA","rm4_d":"ModelRouter、提示缓存、AutoDream、CostTracker。",
-  "cta_eyebrow":"立即开始",
-  "cta_title":"别再聊天了，<span class=\"grad-text\">直接交付代码</span>。",
+  "rm_title":"JWCode 接下来 <span style=\"color:var(--color-accent)\">去哪儿</span>。",
+  "rm_sub":"活的计划表。欢迎提交 Issue。",
+  "rm1_phase":"当前","rm1_t":"IDE 原生插件","rm1_d":"VS Code 和 JetBrains 插件。同一引擎，编辑器内使用。",
+  "rm2_phase":"下一步","rm2_t":"JWCode Cloud","rm2_d":"面向团队的托管服务。零基础设施搭建。",
+  "rm3_phase":"未来","rm3_t":"企业版","rm3_d":"SSO、RBAC、审计日志。为合规环境构建。",
+  "rm4_phase":"未来","rm4_t":"长周期规划","rm4_d":"跨天任务、跨会话持久规划。",
+  "cta_title":"直接交付，<span style=\"color:var(--color-accent)\">不只是聊天</span>。",
   "cta_p":"安装 JWCode，让它先读代码，再动一行。",
-  "cta_install":"安装 JWCode","cta_star":"GitHub Star",
-  "cta_news_h":"每月一封版本说明与深度文章。不打扰。",
-  "cta_news_btn":"订阅",
-  "ft_desc":"Java AI 编程引擎。为工程师而造。",
-  "ft_p_t":"产品","ft_p_1":"场景","ft_p_2":"CLI & Web","ft_p_3":"能力","ft_p_4":"安装",
-  "ft_d_t":"开发者","ft_d_1":"GitHub","ft_d_2":"版本","ft_d_4":"安装",
-  "ft_c_t":"社区","ft_c_1":"Issues","ft_c_2":"讨论","ft_c_3":"贡献","ft_c_4":"许可证",
-  "footer_license":"版权所有"
+  "cta_install":"安装 JWCode","cta_github":"GitHub",
+  "footer_copy":"Copyright©2025 JWCode. Apache 2.0. 为工程师而造。",
+  "footer_github":"GitHub","footer_license":"Apache 2.0 许可证"
 }
 };
 
@@ -868,37 +823,18 @@ function applyLang(){
     if(i18n[lang][k]!==undefined) e.innerHTML=i18n[lang][k];
   });
   document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.textContent.trim()===(lang==="en"?"EN":"中")));
-  document.documentElement.lang=lang;
+  document.documentElement.lang=lang === "en" ? "en" : "zh-CN";
 }
 function setLang(l){lang=l;applyLang();}
 applyLang();
-
-function switchTab(name,btn){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  btn.classList.add("active");
-  document.querySelectorAll(".product-panel").forEach(p=>p.classList.remove("active"));
-  document.getElementById("panel-"+name).classList.add("active");
-}
 
 function copyCmd(btn){
   const body=btn.closest(".code-card").querySelector(".code-card-body");
   const text=body.innerText.replace(/^\$\s?/gm,"").trim();
   navigator.clipboard.writeText(text).then(()=>{
-    const orig=btn.textContent;
-    btn.textContent="Copied ✓";
+    btn.textContent=lang==="zh"?"已复制 ✓":"Copied ✓";
     setTimeout(()=>{btn.textContent=lang==="zh"?"复制":"Copy";},1500);
   });
-}
-
-function subscribe(form){
-  const email=form.querySelector("input").value;
-  if(!email) return;
-  const btn=form.querySelector("button");
-  const orig=btn.textContent;
-  btn.textContent="✓";
-  btn.disabled=true;
-  form.querySelector("input").value="";
-  setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},1800);
 }
 
 // Reveal on scroll
@@ -906,6 +842,34 @@ const io=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});
 },{threshold:.12,rootMargin:"0px 0px -40px 0px"});
 document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+// Lightbox
+function openLightbox(src){
+  const lb=document.getElementById('lightbox');
+  lb.querySelector('img').src=src;
+  lb.classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+// Close on Esc
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener("click",e=>{
+    const id=a.getAttribute("href");
+    if(id==="#") return;
+    const target=document.querySelector(id);
+    if(target){e.preventDefault();target.scrollIntoView({behavior:"smooth"});}
+  });
+});
 </script>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <button class="lb-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
+  <img src="" alt="抖音群二维码" onclick="event.stopPropagation()" loading="lazy">
+  <div class="lb-label" data-i18n="dy_hint">扫码进群交流</div>
+</div>
 </body>
 </html>
